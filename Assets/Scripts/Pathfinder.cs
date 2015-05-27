@@ -20,6 +20,8 @@ public class Pathfinder : MonoBehaviour {
 
     public Object enemyPrefab;
     public int enemies = 0;
+    public int maxEnemies = 100;
+    public float spawnInterval = .5f;
     private float spawnTime = 0f;
 
     void Awake() {
@@ -28,14 +30,14 @@ public class Pathfinder : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
-        tS = LevelLoader.tileSize;
+        tS = Level.tileSize;
         player = GameObject.Find("Player").transform;
         frontier = new Queue<Node>();
     }
 
     // Update is called once per frame
     void Update() {
-        if (enemies < 100 && (Input.GetKeyDown(KeyCode.R) || spawnTime < Time.time)) {
+        if (enemies < maxEnemies && (Input.GetKeyDown(KeyCode.R) || spawnTime < Time.time)) {
             int xe, ye;
             do {
                 xe = Random.Range(0, tiles.Length);
@@ -44,7 +46,7 @@ public class Pathfinder : MonoBehaviour {
 
             Vector3 spawn = new Vector3((xe + .5f) * tS, .5f, (ye + .5f) * tS);
             Instantiate(enemyPrefab, spawn, Quaternion.identity);
-            spawnTime = Time.time + .5f;
+            spawnTime = Time.time + spawnInterval;
             enemies++;
         }
 
@@ -154,7 +156,7 @@ public class Pathfinder : MonoBehaviour {
 
     private bool IsWalkable(int x, int y) {
         // if inside level, on a walkable tile
-        return InsideLevel(x, y) && tiles[x][y] == 0;
+        return InsideLevel(x, y) && tiles[x][y] == Level.GROUND;
     }
 
     public bool InsideLevel(int x, int y) {

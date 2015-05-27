@@ -16,7 +16,7 @@ public class FindPlayer : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
-        mr = GetComponent<MeshRenderer>();
+        mr = transform.Find("Model").GetComponent<MeshRenderer>();
         rb = GetComponent<Rigidbody>();
         mpb = new MaterialPropertyBlock();
         rb.freezeRotation = true;
@@ -35,6 +35,7 @@ public class FindPlayer : MonoBehaviour {
         if (!rb) {
             mpb.SetColor("_Color", Color.blue);
         } else if (stopUpdate > Time.time || !Pathfinder.player) {
+            path = Vector3.zero;
             mpb.SetColor("_Color", Color.red);
         } else {
             mpb.SetColor("_Color", Color.yellow);
@@ -51,8 +52,8 @@ public class FindPlayer : MonoBehaviour {
             return;
         }
 
-        x = (int)(transform.position.x / LevelLoader.tileSize);
-        y = (int)(transform.position.z / LevelLoader.tileSize);
+        x = (int)(transform.position.x / Level.tileSize);
+        y = (int)(transform.position.z / Level.tileSize);
 
         if ((x != lastX || y != lastY || path == Vector3.zero) && timeSincePath < Time.time) {
             if (!Pathfinder.instance.InsideLevel(transform.position.x, transform.position.z)) {
@@ -85,7 +86,7 @@ public class FindPlayer : MonoBehaviour {
     }
 
     void OnCollisionStay(Collision col) {
-        if (col.collider.tag == "Level") {
+        if (col.collider.CompareTag("Level")) {
             grounded = true;
         }
     }

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 
 [RequireComponent(typeof(MeshRenderer))]
-[RequireComponent(typeof (MeshFilter))]
+[RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshCollider))]
-public class LevelLoader : MonoBehaviour {
+public class Level : MonoBehaviour {
 
     private int currentLevel = 1;
     private Mesh mesh;  // current level mesh
@@ -18,11 +18,13 @@ public class LevelLoader : MonoBehaviour {
     public static float tileSize = 2f;
 
     // tile ids
-    private const int GROUND = 0;
-    private const int WALL = 1;
-    private const int PLAYER_SPAWN = 2;
+    public const int GROUND = 0;
+    public const int WALL = 1;
+    public const int PLAYER_SPAWN = 2;
+    public const int SPLITTER = 3;
 
     private GameObject p;
+    public Object splitter;
 
     // Use this for initialization
     void Awake() {
@@ -134,9 +136,15 @@ public class LevelLoader : MonoBehaviour {
                 }
 
                 // switch statement for additional tile logic (like spawning prefabs)
+                Vector3 spawn = new Vector3((x + .5f) * tileSize, 0, (y + .5f) * tileSize);
                 switch (tiles[x][y]) {
                     case PLAYER_SPAWN:
-                        p.transform.position = new Vector3(x * tileSize, 0, y * tileSize) + Vector3.one * tileSize / 2f;
+                        p.transform.position = spawn + Vector3.up;
+                        break;
+                    case SPLITTER:
+                        GameObject go = (GameObject)Instantiate(splitter, spawn, Quaternion.identity);
+                        go.transform.parent = transform;
+                        tiles[x][y] = GROUND;
                         break;
                     default:
                         break;
