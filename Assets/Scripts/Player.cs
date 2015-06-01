@@ -65,20 +65,45 @@ public class Player : MonoBehaviour {
         // attach to nearby atoms if you can
         Collider[] nearbyAtoms = Physics.OverlapSphere(transform.position, 1f, atomLayer);
         for (int c = 0; c < nearbyAtoms.Length; c++) {
-            if (nearbyAtoms[c].transform.parent == transform || nearbyAtoms[c].transform == transform) {
+            Transform nearbyAtom = nearbyAtoms[c].transform;
+            if (nearbyAtom.parent == transform || nearbyAtom == transform) {
                 continue;
             }
+            float minDistSqrd = float.MaxValue;
+            int index = -1;
             for (int i = 0; i < bondedAtoms.Length; i++) {
-                if (bondedAtoms[i] == null) {
-                    bondedAtoms[i] = nearbyAtoms[c].transform;
-                    Destroy(bondedAtoms[i].GetComponent<Rigidbody>());
-                    bondedAtoms[i].parent = transform;
-                    bonds[i].SetActive(true);
-
-                    break;
+                if (!bondedAtoms[i]) {
+                    Vector3 bondedAtomPos = transform.position + transform.TransformDirection(getLocalBondDir(i)) * bondLength;
+                    float sqrMag = Vector3.SqrMagnitude(bondedAtomPos - nearbyAtom.position);
+                    if (sqrMag < minDistSqrd) {
+                        minDistSqrd = sqrMag;
+                        index = i;
+                    }
                 }
             }
+
+            if (index >= 0) {
+                bondedAtoms[index] = nearbyAtoms[c].transform;
+                Destroy(bondedAtoms[index].GetComponent<Rigidbody>());
+                bondedAtoms[index].parent = transform;
+                bonds[index].SetActive(true);
+            }
         }
+    }
+
+    private Vector3 getLocalBondDir(int i) {
+        switch (i) {
+            case 0:
+                return Vector3.forward;
+            case 1:
+                return Vector3.right;
+            case 2:
+                return Vector3.back;
+            case 3:
+                return Vector3.left;
+        }
+        return Vector3.up;
+
     }
 
     void Update() {
@@ -87,36 +112,13 @@ public class Player : MonoBehaviour {
             if (!bondedAtoms[i]) {
                 continue;
             }
-            Vector3 localP = Vector3.up;
-            float yRot = 0f;
-            switch (i) {
-                case 0:
-                    localP = Vector3.right;
-                    yRot = 90f;
-                    break;
-                case 1:
-                    localP = Vector3.left;
-                    yRot = 270f;
-                    break;
-                case 2:
-                    localP = Vector3.back;
-                    yRot = 180f;
-                    break;
-                case 3:
-                    localP = Vector3.forward;
-                    break;
-            }
-
             if (!bonds[i].activeInHierarchy) {
                 DetachAtom(i, true);
             } else {
-
                 Vector3 fromPos = bondedAtoms[i].localPosition;
-                Vector3 toPos = localP * bondLength;
+                Vector3 toPos = getLocalBondDir(i) * bondLength;
                 bondedAtoms[i].localPosition = Vector3.Lerp(fromPos, toPos, Time.deltaTime * 5f);
-                bonds[i].transform.localEulerAngles = new Vector3(90f, yRot, 0f);
-                if (Vector3.SqrMagnitude(fromPos - toPos) < .25f * .25f) {
-                }
+                bonds[i].transform.localEulerAngles = new Vector3(90f, i * 90f, 0f);
             }
         }
 
