@@ -6,7 +6,6 @@ public class Player : MonoBehaviour {
     public float mouseSensitivity = .1f;
     public float accel = 15f;
     public float maxSpeed = 8f;
-    public float bondLength = 1.25f;
 
     // camera variables
     private Transform cam;
@@ -18,12 +17,13 @@ public class Player : MonoBehaviour {
     private float lcamDistance;
     private bool updateCamera = false;
 
-    private Transform[] bondedAtoms;
-    private GameObject[] bonds;
-
     private Rigidbody rb;
     public LayerMask atomLayer;
     public Object bond;
+    private Transform[] bondPositions;
+    private GameObject[] bonds;
+    public float bondLength = 1.25f;
+    private Atom atom;
 
     // Use this for initialization
     void Start() {
@@ -32,10 +32,12 @@ public class Player : MonoBehaviour {
         cam = Camera.main.transform;
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
+        atom = GetComponent<Atom>();
+        atom.setElement(Element.HYDROGEN);
+        gameObject.name = "Player";
 
-        int maxBonds = 4; // for carbon, will change depending on what atom you are
-        bondedAtoms = new Transform[maxBonds];
-        bonds = new GameObject[maxBonds];
+        bondPositions = new Transform[4];
+        bonds = new GameObject[4];
 
         for (int i = 0; i < bonds.Length; i++) {
             GameObject go = (GameObject)Instantiate(bond);
@@ -61,89 +63,33 @@ public class Player : MonoBehaviour {
             rb.velocity = rb.velocity.normalized * maxSpeed;
         }
         updateCamera = true;
-
-        // attach to nearby atoms if you can
-        Collider[] nearbyAtoms = Physics.OverlapSphere(transform.position, 1f, atomLayer);
-        for (int c = 0; c < nearbyAtoms.Length; c++) {
-            Transform nearbyAtom = nearbyAtoms[c].transform;
-            if (nearbyAtom.parent == transform || nearbyAtom == transform) {
-                continue;
-            }
-            float minDistSqrd = float.MaxValue;
-            int index = -1;
-            for (int i = 0; i < bondedAtoms.Length; i++) {
-                if (!bondedAtoms[i]) {
-                    Vector3 bondedAtomPos = transform.position + transform.TransformDirection(getLocalBondDir(i)) * bondLength;
-                    float sqrMag = Vector3.SqrMagnitude(bondedAtomPos - nearbyAtom.position);
-                    if (sqrMag < minDistSqrd) {
-                        minDistSqrd = sqrMag;
-                        index = i;
-                    }
-                }
-            }
-
-            if (index >= 0) {
-                bondedAtoms[index] = nearbyAtoms[c].transform;
-                Destroy(bondedAtoms[index].GetComponent<Rigidbody>());
-                bondedAtoms[index].parent = transform;
-                bonds[index].SetActive(true);
-            }
-        }
-    }
-
-    private Vector3 getLocalBondDir(int i) {
-        switch (i) {
-            case 0:
-                return Vector3.forward;
-            case 1:
-                return Vector3.right;
-            case 2:
-                return Vector3.back;
-            case 3:
-                return Vector3.left;
-        }
-        return Vector3.up;
-
     }
 
     void Update() {
         // for each of your bonds lerp them towards their correct positions
-        for (int i = 0; i < bondedAtoms.Length; i++) {
-            if (!bondedAtoms[i]) {
-                continue;
-            }
-            if (!bonds[i].activeInHierarchy) {
-                DetachAtom(i, true);
-            } else {
-                Vector3 fromPos = bondedAtoms[i].localPosition;
-                Vector3 toPos = getLocalBondDir(i) * bondLength;
-                bondedAtoms[i].localPosition = Vector3.Lerp(fromPos, toPos, Time.deltaTime * 5f);
-                bonds[i].transform.localEulerAngles = new Vector3(90f, i * 90f, 0f);
+        for (int i = 0; i < bondPositions.Length; i++) {
+            if (bondPositions[i]) {
+                if (!bonds[i].activeInHierarchy) {
+                    DetachAtom(i, true);
+                } else {
+                    Vector3 fromPos = bondPositions[i].localPosition;
+                    Vector3 toPos = getLocalBondDir(i) * bondLength;
+                    bondPositions[i].localPosition = Vector3.Lerp(fromPos, toPos, Time.deltaTime * 5f);
+                    bonds[i].transform.localEulerAngles = new Vector3(90f, i * 90f, 0f);
+                }
             }
         }
 
         // blow up nearby atoms
         if (Input.GetKeyDown(KeyCode.F)) {
-            DetachConnectedAtoms();
-            Collider[] cols = Physics.OverlapSphere(transform.position, 15f);
-            for (int i = 0; i < cols.Length; i++) {
-                FindPlayer fp = cols[i].GetComponent<FindPlayer>();
-                if (fp && fp.rb) {
-                    fp.rb.AddExplosionForce(40f, transform.position, 15f, 3f);
-                    fp.stopUpdate = Time.time + 2f;
-                }
-            }
+            explodeAtoms();
         }
 
         // toggle attraction
         if (Input.GetKeyDown(KeyCode.Q)) {
-            if (Pathfinder.player == null) {
-                Pathfinder.player = transform;
-            } else {
-                DetachConnectedAtoms();
-                Pathfinder.player = null;
-            }
+            sleepAtoms();
         }
+
 
         // fixes camera jitter by only updating after physics is processed
         if (!updateCamera) {
@@ -176,21 +122,86 @@ public class Player : MonoBehaviour {
     }
 
     private void DetachConnectedAtoms() {
-        for (int i = 0; i < bondedAtoms.Length; i++) {
+        for (int i = 0; i < bondPositions.Length; i++) {
             DetachAtom(i);
         }
     }
 
     private void DetachAtom(int i, bool stopUpdate = false) {
-        if (bondedAtoms[i]) {
-            bondedAtoms[i].parent = null;
-            FindPlayer fp = bondedAtoms[i].GetComponent<FindPlayer>();
-            fp.AddRigidBody();
+        if (bondPositions[i]) {
+            bondPositions[i].transform.parent = null;
+            AtomBehavior ab = bondPositions[i].GetComponent<AtomBehavior>();
+            ab.AddRigidBody();
             if (stopUpdate) {
-                fp.stopUpdate = Time.time + 2f;
+                ab.stopUpdate = Time.time + 2f;
             }
-            bondedAtoms[i] = null;
+            bondPositions[i] = null;
             bonds[i].SetActive(false);
+            atom.currentBonds--;
         }
+    }
+
+    void OnTriggerEnter(Collider col) {
+        Transform other = col.transform;
+        if (other.parent == transform || !other.CompareTag("Atom") || other == transform || !atom.canBond()) {
+            return;
+        }
+
+        // find closest available bond location
+        float minDistSqrd = float.MaxValue;
+        int index = -1;
+        for (int i = 0; i < bondPositions.Length; i++) {
+            if (!bondPositions[i]) {
+                Vector3 bondedAtomPos = transform.position + transform.TransformDirection(getLocalBondDir(i)) * bondLength;
+                float sqrMag = Vector3.SqrMagnitude(bondedAtomPos - other.position);
+                if (sqrMag < minDistSqrd) {
+                    minDistSqrd = sqrMag;
+                    index = i;
+                }
+            }
+        }
+
+        if (index >= 0) {
+            Destroy(other.GetComponent<Rigidbody>());
+            other.parent = transform;
+            bondPositions[index] = other;
+            bonds[index].SetActive(true);
+            atom.currentBonds++;
+        }
+    }
+
+    public void explodeAtoms() {
+        DetachConnectedAtoms();
+        Collider[] cols = Physics.OverlapSphere(transform.position, 15f);
+        for (int i = 0; i < cols.Length; i++) {
+            AtomBehavior ab = cols[i].GetComponent<AtomBehavior>();
+            if (ab && ab.rb) {
+                ab.rb.AddExplosionForce(40f, transform.position, 15f, 3f);
+                ab.stopUpdate = Time.time + 2f;
+            }
+        }
+    }
+
+    public void sleepAtoms() {
+        if (Pathfinder.player == null) {
+            Pathfinder.player = transform;
+        } else {
+            DetachConnectedAtoms();
+            Pathfinder.player = null;
+        }
+    }
+
+    private Vector3 getLocalBondDir(int i) {
+        switch (i) {
+            case 0:
+                return Vector3.forward;
+            case 1:
+                return Vector3.right;
+            case 2:
+                return Vector3.back;
+            case 3:
+                return Vector3.left;
+        }
+        return Vector3.up;
     }
 }

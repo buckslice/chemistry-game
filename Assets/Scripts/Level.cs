@@ -6,6 +6,15 @@ using System.Collections.Generic;
 [RequireComponent(typeof(MeshCollider))]
 public class Level : MonoBehaviour {
 
+    public Object splitterPrefab;
+    public Object exploderPrefab;
+    public Object sleeperPrefab;
+    public Object atomPrefab;
+    public static int atoms = 0;
+    public int maxAtoms = 100;
+    public float spawnInterval = .5f;
+
+    private float spawnTime = 0f;
     private int currentLevel = 1;
     private Mesh mesh;  // current level mesh
 
@@ -22,14 +31,28 @@ public class Level : MonoBehaviour {
     public const int WALL = 1;
     public const int PLAYER_SPAWN = 2;
     public const int SPLITTER = 3;
+    public const int EXPLODER = 4;
+    public const int SLEEPER = 5;
 
-    private GameObject p;
-    public Object splitter;
+    public const int HYDROGEN = 6;
+    public const int CARBON = 7;
+    public const int NITROGEN = 8;
+    public const int OXYGEN = 9;
+
+    public static Player player;
 
     // Use this for initialization
     void Awake() {
-        p = GameObject.Find("Player");
+        player = GameObject.Find("Player").GetComponent<Player>();
         LoadLevel();
+    }
+
+    void Update() {
+        if (atoms < maxAtoms && (Input.GetKeyDown(KeyCode.R) || spawnTime < Time.time)) {
+            Instantiate(atomPrefab, Pathfinder.instance.getRandomWalkable(), Quaternion.identity);
+            spawnTime = Time.time + spawnInterval;
+            atoms++;
+        }
     }
 
     public void LoadLevel() {
@@ -139,11 +162,41 @@ public class Level : MonoBehaviour {
                 Vector3 spawn = new Vector3((x + .5f) * tileSize, 0, (y + .5f) * tileSize);
                 switch (tiles[x][y]) {
                     case PLAYER_SPAWN:
-                        p.transform.position = spawn + Vector3.up;
+                        player.transform.position = spawn + Vector3.up;
                         break;
                     case SPLITTER:
-                        GameObject go = (GameObject)Instantiate(splitter, spawn, Quaternion.identity);
+                        GameObject go = (GameObject)Instantiate(splitterPrefab, spawn, Quaternion.identity);
                         go.transform.parent = transform;
+                        tiles[x][y] = GROUND;
+                        break;
+                    case EXPLODER:
+                        go = (GameObject)Instantiate(exploderPrefab, spawn, Quaternion.identity);
+                        go.transform.parent = transform;
+                        tiles[x][y] = GROUND;
+                        break;
+                    case SLEEPER:
+                        go = (GameObject)Instantiate(sleeperPrefab, spawn, Quaternion.identity);
+                        go.transform.parent = transform;
+                        tiles[x][y] = GROUND;
+                        break;
+                    case HYDROGEN:
+                        Atom a = ((GameObject)Instantiate(atomPrefab, spawn + Vector3.up, Quaternion.identity)).GetComponent<Atom>();
+                        a.setElement(Element.HYDROGEN);
+                        tiles[x][y] = GROUND;
+                        break;
+                    case CARBON:
+                        a = ((GameObject)Instantiate(atomPrefab, spawn + Vector3.up, Quaternion.identity)).GetComponent<Atom>();
+                        a.setElement(Element.CARBON);
+                        tiles[x][y] = GROUND;
+                        break;
+                    case NITROGEN:
+                        a = ((GameObject)Instantiate(atomPrefab, spawn + Vector3.up, Quaternion.identity)).GetComponent<Atom>();
+                        a.setElement(Element.NITROGEN);
+                        tiles[x][y] = GROUND;
+                        break;
+                    case OXYGEN:
+                        a = ((GameObject)Instantiate(atomPrefab, spawn + Vector3.up, Quaternion.identity)).GetComponent<Atom>();
+                        a.setElement(Element.OXYGEN);
                         tiles[x][y] = GROUND;
                         break;
                     default:
@@ -168,7 +221,7 @@ public class Level : MonoBehaviour {
         gameObject.GetComponent<MeshFilter>().mesh = mesh;
         gameObject.GetComponent<MeshCollider>().sharedMesh = mesh;
 
-        GameObject.Find("Pathfinder").GetComponent<Pathfinder>().SetTiles(tiles);
+        GameObject.Find("Pathfinder").GetComponent<Pathfinder>().setTiles(tiles);
     }
 
     private void AddUvsAndTris(int index) {
@@ -189,7 +242,7 @@ public class Level : MonoBehaviour {
     }
 
     private int GetHeight(int x, int y) {
-        if (x < 0 || x >= tiles[0].Length || y < 0 || y >= tiles.Length) {
+        if (x < 0 || x >= tiles.Length || y < 0 || y >= tiles[0].Length) {
             return 1;
         }
         switch (tiles[x][y]) {

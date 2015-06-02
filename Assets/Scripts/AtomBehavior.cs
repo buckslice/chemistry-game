@@ -1,24 +1,22 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class FindPlayer : MonoBehaviour {
+public class AtomBehavior : MonoBehaviour {
 
     public Rigidbody rb { get; set; }
     public float stopUpdate { get; set; }
-    private MeshRenderer mr;
-    private MaterialPropertyBlock mpb;
     private bool grounded = false;
     private Vector3 path = Vector3.zero;
     private float idle;
     private float timeSincePath;
-
     private int x, y, lastX, lastY;
+    private Atom atom;
 
     // Use this for initialization
-    void Start() {
-        mr = transform.Find("Model").GetComponent<MeshRenderer>();
+    void Awake() {
         rb = GetComponent<Rigidbody>();
-        mpb = new MaterialPropertyBlock();
+        atom = GetComponent<Atom>();
+        atom.setElement(Element.HYDROGEN);//default
         rb.freezeRotation = true;
     }
 
@@ -32,17 +30,17 @@ public class FindPlayer : MonoBehaviour {
 
     void Update() {
         gameObject.layer = 0;
+        gameObject.tag = "Atom";
         if (!rb) {
-            mpb.SetColor("_Color", Color.blue);
+            //atom.color = Color.blue;
         } else if (stopUpdate > Time.time || !Pathfinder.player) {
             path = Vector3.zero;
-            mpb.SetColor("_Color", Color.red);
+            atom.color = Color.red;
+            gameObject.tag = "Untagged";
         } else {
-            mpb.SetColor("_Color", Color.yellow);
+            atom.resetColor();
             gameObject.layer = 8;   // atom layer
         }
-
-        mr.SetPropertyBlock(mpb);
     }
 
     // Update is called once per frame
@@ -56,18 +54,18 @@ public class FindPlayer : MonoBehaviour {
         y = (int)(transform.position.z / Level.tileSize);
 
         if ((x != lastX || y != lastY || path == Vector3.zero) && timeSincePath < Time.time) {
-            if (!Pathfinder.instance.InsideLevel(transform.position.x, transform.position.z)) {
-                Pathfinder.instance.enemies--;
+            if (!Pathfinder.instance.insideLevel(transform.position.x, transform.position.z)) {
+                Level.atoms--;
                 Destroy(gameObject);
                 return;
             }
 
-            path = Pathfinder.instance.GetPath(transform.position.x, transform.position.z);
+            path = Pathfinder.instance.getPath(transform.position.x, transform.position.z);
             idle = path == Vector3.zero ? idle : Time.time + 5f;
             timeSincePath = Time.time + .1f;
 
             if (idle < Time.time && Pathfinder.player) {
-                Pathfinder.instance.enemies--;
+                Level.atoms--;
                 Destroy(gameObject);
                 return;
             }
