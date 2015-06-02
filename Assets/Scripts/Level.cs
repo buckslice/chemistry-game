@@ -44,6 +44,7 @@ public class Level : MonoBehaviour {
     // Use this for initialization
     void Awake() {
         player = GameObject.Find("Player").GetComponent<Player>();
+        Textures.load();
         LoadLevel();
     }
 

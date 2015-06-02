@@ -10,7 +10,6 @@ public enum Element {
 
 public class Atom : MonoBehaviour {
 
-
     public Element element { get; private set; }
     public int maxBonds { get; private set; }
     private float weight;

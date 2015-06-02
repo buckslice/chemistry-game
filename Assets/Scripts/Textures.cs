@@ -7,7 +7,7 @@ public class Textures : MonoBehaviour {
     public static Texture nitrogen;
     public static Texture oxygen;
 
-    void Awake() {
+    public static void load() {
         hydrogen = (Texture)Resources.Load("H");
         carbon = (Texture)Resources.Load("C");
         nitrogen = (Texture)Resources.Load("N");
