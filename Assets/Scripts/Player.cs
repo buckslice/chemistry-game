@@ -16,6 +16,8 @@ public class Player : MonoBehaviour {
     private float lpitch = 0f;
     private float lcamDistance;
     private bool updateCamera = false;
+	public int playerWeight = 0;
+	//private int initialWeight;
 
     private Rigidbody rb;
     public LayerMask atomLayer;
@@ -23,7 +25,7 @@ public class Player : MonoBehaviour {
     private Transform[] bondPositions;
     private GameObject[] bonds;
     public float bondLength = 1.25f;
-    private Atom atom;
+    public static Atom atom;
 
     // Use this for initialization
     void Start() {
@@ -35,6 +37,8 @@ public class Player : MonoBehaviour {
         atom = GetComponent<Atom>();
         atom.setElement(Element.HYDROGEN);
         gameObject.name = "Player";
+		playerWeight += atom.weight;
+		//initialWeight = playerWeight;
 
         bondPositions = new Transform[4];
         bonds = new GameObject[4];
@@ -138,6 +142,12 @@ public class Player : MonoBehaviour {
             bondPositions[i] = null;
             bonds[i].SetActive(false);
             atom.currentBonds--;
+
+			ab.gameObject.tag = "Atom";
+
+			Atom atomScript = ab.GetComponent<Atom>();			// reduce weight
+			playerWeight -= atomScript.weight;
+																// changing tag back to "Atom"
         }
     }
 
@@ -167,6 +177,12 @@ public class Player : MonoBehaviour {
             bondPositions[index] = other;
             bonds[index].SetActive(true);
             atom.currentBonds++;
+
+			//other.gameObject.tag = "AtomBond";
+
+			Atom atomScript = other.GetComponent<Atom>();			// add weight
+			atomScript.gameObject.tag = "AtomBond";					// assigning tag to attached atoms as "AtomBond"
+			playerWeight += atomScript.weight;
         }
     }
 
