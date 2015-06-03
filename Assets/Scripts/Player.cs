@@ -23,9 +23,10 @@ public class Player : MonoBehaviour {
     public LayerMask atomLayer;
     public Object bond;
     private Transform[] bondPositions;
+	private int[] bondStrengths;
     private GameObject[] bonds;
     public float bondLength = 1.25f;
-    public static Atom atom;
+    public static Atom atom;					// made it static so that it can be accessed in WeightDoor scripts.
 
     // Use this for initialization
     void Start() {
@@ -41,6 +42,7 @@ public class Player : MonoBehaviour {
 		//initialWeight = playerWeight;
 
         bondPositions = new Transform[4];
+		bondStrengths = new int[4];
         bonds = new GameObject[4];
 
         for (int i = 0; i < bonds.Length; i++) {
@@ -140,6 +142,7 @@ public class Player : MonoBehaviour {
                 ab.stopUpdate = Time.time + 2f;
             }
             bondPositions[i] = null;
+			bondStrengths[i] = 0;
             bonds[i].SetActive(false);
             atom.currentBonds--;
 
@@ -147,7 +150,7 @@ public class Player : MonoBehaviour {
 
 			Atom atomScript = ab.GetComponent<Atom>();			// reduce weight
 			playerWeight -= atomScript.weight;
-																// changing tag back to "Atom"
+			ab.gameObject.tag = "Atom";							// changing tag back to "Atom"
         }
     }
 
@@ -175,14 +178,101 @@ public class Player : MonoBehaviour {
             Destroy(other.GetComponent<Rigidbody>());
             other.parent = transform;
             bondPositions[index] = other;
+
+			Atom atomScript = other.GetComponent<Atom>();			
+			Element e2;
+			e2 = atomScript.element;
+			Element e1 = atom.element;
+
+			// Bond energies for different bonds - thought of having 2 splitters; one for strong and one for weak bonds.
+
+			switch (e1) {
+			case Element.HYDROGEN:
+				switch (e2)
+				{
+				case Element.HYDROGEN:
+					bondStrengths[index] = 432;
+					break;
+				case Element.CARBON:
+					bondStrengths[index] = 413;
+					break;
+				case Element.NITROGEN:
+					bondStrengths[index] = 391;
+					break;
+				case Element.OXYGEN:
+					bondStrengths[index] = 467;
+					break;
+				default: break;
+				}
+				break;
+			case Element.CARBON:
+				switch (e2)
+				{
+				case Element.HYDROGEN:
+					bondStrengths[index] = 413;
+					break;
+				case Element.CARBON:
+					bondStrengths[index] = 347;
+					break;
+				case Element.NITROGEN:
+					bondStrengths[index] = 305;
+					break;
+				case Element.OXYGEN:
+					bondStrengths[index] = 358;
+					break;
+				default: break;
+				}
+				break;
+			case Element.NITROGEN:
+				switch (e2)
+				{
+				case Element.HYDROGEN:
+					bondStrengths[index] = 391;
+					break;
+				case Element.CARBON:
+					bondStrengths[index] = 305;
+					break;
+				case Element.NITROGEN:
+					bondStrengths[index] = 160;
+					break;
+				case Element.OXYGEN:
+					bondStrengths[index] = 201;
+					break;
+				default: break;
+				}
+				break;
+			case Element.OXYGEN:
+				switch (e2)
+				{
+				case Element.HYDROGEN:
+					bondStrengths[index] = 467;
+					break;
+				case Element.CARBON:
+					bondStrengths[index] = 358;
+					break;
+				case Element.NITROGEN:
+					bondStrengths[index] = 201;
+					break;
+				case Element.OXYGEN:
+					bondStrengths[index] = 204;
+					break;
+				default: break;
+				}
+				break;
+			default: break;
+			}
+
+
             bonds[index].SetActive(true);
             atom.currentBonds++;
 
 			//other.gameObject.tag = "AtomBond";
 
-			Atom atomScript = other.GetComponent<Atom>();			// add weight
-			atomScript.gameObject.tag = "AtomBond";					// assigning tag to attached atoms as "AtomBond"
-			playerWeight += atomScript.weight;
+			//atomScript.gameObject.tag = "AtomBond";		
+			Debug.Log (other.gameObject.tag);						// This prints "Atom" properly
+			other.gameObject.tag = "AtomBond";						// assigning tag to attached atoms as "AtomBond"
+			playerWeight += atomScript.weight;						// add weight
+			Debug.Log (other.gameObject.tag);						// This prints "AtomBond"
         }
     }
 

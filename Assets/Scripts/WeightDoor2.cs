@@ -13,12 +13,12 @@ public class WeightDoor2 : MonoBehaviour {
 		
 	}
 	
-	void OnTriggerStay(Collider col) {
-		if (col.CompareTag("Player") || col.CompareTag("AtomBond")) {
-			
+	void OnTriggerEnter(Collider col) {
+		if (col.CompareTag("Player") || col.gameObject.CompareTag("AtomBond")) {	// was initially col.CompareTag 
+																					// that didn't work, nor does this
 			if(Player.atom.weight > 29)
 			{
-				Debug.Log ("Hey");
+				Debug.Log ("Hey");				// this works when Player hits it.
 			}
 			
 		}
