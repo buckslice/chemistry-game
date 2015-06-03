@@ -29,18 +29,16 @@ public class AtomBehavior : MonoBehaviour {
     }
 
     void Update() {
-        gameObject.layer = 0;
-        gameObject.tag = "Atom";
-        if (!rb) {
-            //atom.color = Color.blue;
-        } else if (stopUpdate > Time.time || !Pathfinder.player) {
-            path = Vector3.zero;
-            atom.color = Color.red;
-            gameObject.tag = "Untagged";
-        } else {
-            atom.resetColor();
-            gameObject.layer = 8;   // atom layer
-        }
+		if (!rb) {
+			gameObject.tag = "AtomBond";
+		} else if (stopUpdate > Time.time || !Pathfinder.player) {
+			path = Vector3.zero;
+			atom.color = Color.red;
+			gameObject.tag = "Untagged";
+		} else {	
+			atom.resetColor ();
+			gameObject.tag = "Atom";
+		}
     }
 
     // Update is called once per frame
@@ -71,11 +69,30 @@ public class AtomBehavior : MonoBehaviour {
             }
         }
 
-        rb.AddForce(path * 10f);
+		rb.AddForce (path * 10f);
+
         // clamp velocity to maxspeed
         float maxSpeed = 5f;
-        if (rb.velocity.sqrMagnitude > maxSpeed * maxSpeed) {
-            rb.velocity = rb.velocity.normalized * maxSpeed;
+		Element e1 = atom.element;
+		switch (e1)
+		{
+		case Element.HYDROGEN:
+			maxSpeed = 8f;
+			break;
+		case Element.CARBON:
+			maxSpeed = 5.5f;
+			break;
+		case Element.NITROGEN:
+			maxSpeed = 4f;
+			break;
+		case Element.OXYGEN:
+			maxSpeed = 3f;
+			break;
+		default: break;
+		}
+
+		if (rb.velocity.sqrMagnitude > (maxSpeed * maxSpeed)) {
+			rb.velocity = rb.velocity.normalized * maxSpeed;
         }
         grounded = false;
 

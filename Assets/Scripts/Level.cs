@@ -8,8 +8,9 @@ public class Level : MonoBehaviour {
 
     public Object splitterPrefab;
     public Object exploderPrefab;
-    public Object sleeperPrefab;
+    public Object weightDoorPrefab;
     public Object atomPrefab;
+
     public static int atoms = 0;
     public int maxAtoms = 100;
     public float spawnInterval = .5f;
@@ -30,16 +31,17 @@ public class Level : MonoBehaviour {
     public const int GROUND = 0;
     public const int WALL = 1;
     public const int PLAYER_SPAWN = 2;
-    public const int SPLITTER = 3;
-    public const int EXPLODER = 4;
-    public const int SLEEPER = 5;
-
+    public const int SPLITTER_WEAK = 3;
+	public const int SPLITTER_STRONG = 4;
+	public const int EXPLODER = 5;
+    
     public const int HYDROGEN = 6;
     public const int CARBON = 7;
     public const int NITROGEN = 8;
     public const int OXYGEN = 9;
 
-	public const int WEIGHT_DOOR = 10;
+	public const int WEIGHT_DOOR_LESS = 10;
+	public const int WEIGHT_DOOR_MORE = 11;
 
     public static Player player;
 
@@ -167,18 +169,20 @@ public class Level : MonoBehaviour {
                     case PLAYER_SPAWN:
                         player.transform.position = spawn + Vector3.up;
                         break;
-                    case SPLITTER:
+                    case SPLITTER_WEAK:
                         GameObject go = (GameObject)Instantiate(splitterPrefab, spawn, Quaternion.identity);
+						go.GetComponent<Splitter>().isWeak = true;
                         go.transform.parent = transform;
                         tiles[x][y] = GROUND;
                         break;
-                    case EXPLODER:
-                        go = (GameObject)Instantiate(exploderPrefab, spawn, Quaternion.identity);
-                        go.transform.parent = transform;
-                        tiles[x][y] = GROUND;
-                        break;
-                    case SLEEPER:
-                        go = (GameObject)Instantiate(sleeperPrefab, spawn, Quaternion.identity);
+					case SPLITTER_STRONG:
+						go = (GameObject)Instantiate(splitterPrefab, spawn, Quaternion.identity);
+						go.GetComponent<Splitter>().isWeak = false;
+						go.transform.parent = transform;
+						tiles[x][y] = GROUND;
+						break;
+					case EXPLODER:
+						go = (GameObject)Instantiate(exploderPrefab, spawn, Quaternion.identity);
                         go.transform.parent = transform;
                         tiles[x][y] = GROUND;
                         break;
@@ -202,9 +206,16 @@ public class Level : MonoBehaviour {
                         a.setElement(Element.OXYGEN);
                         tiles[x][y] = GROUND;
                         break;
-					case WEIGHT_DOOR:
-						GameObject go2 = (GameObject)Instantiate(splitterPrefab, spawn, Quaternion.identity); // change prefab
-						go2.transform.parent = transform;
+					case WEIGHT_DOOR_LESS:
+						go = (GameObject)Instantiate(splitterPrefab, spawn, Quaternion.identity); // change prefab
+						go.GetComponent<WeightDoor>().isLess = true;
+						go.transform.parent = transform;
+						tiles[x][y] = GROUND;
+						break;
+					case WEIGHT_DOOR_MORE:
+						go = (GameObject)Instantiate(splitterPrefab, spawn, Quaternion.identity); // change prefab
+						go.GetComponent<WeightDoor>().isLess = false;
+						go.transform.parent = transform;
 						tiles[x][y] = GROUND;
 						break;
                     default:

@@ -6,7 +6,7 @@ public class Player : MonoBehaviour {
     public float mouseSensitivity = .1f;
     public float accel = 15f;
     public float maxSpeed = 8f;
-
+	private int currentIndex;
     // camera variables
     private Transform cam;
     private float yaw = 0f;
@@ -20,10 +20,9 @@ public class Player : MonoBehaviour {
 	//private int initialWeight;
 
     private Rigidbody rb;
-    public LayerMask atomLayer;
     public Object bond;
     private Transform[] bondPositions;
-	private int[] bondStrengths;
+	public int[] bondStrengths;
     private GameObject[] bonds;
     public float bondLength = 1.25f;
     public static Atom atom;					// made it static so that it can be accessed in WeightDoor scripts.
@@ -56,6 +55,7 @@ public class Player : MonoBehaviour {
             go.SetActive(false);
 
             bonds[i] = go;
+			bonds[i].tag = "Bond"+i;
 			bondStrengths[i] = 0;
         }
     }
@@ -66,9 +66,27 @@ public class Player : MonoBehaviour {
         float y = Input.GetAxisRaw("Vertical");
         rb.AddForce((transform.forward * y + transform.right * x) * accel);
 
+		Element e1 = atom.element;
+		switch (e1)
+		{
+		case Element.HYDROGEN:
+			maxSpeed = 8f;
+			break;
+		case Element.CARBON:
+			maxSpeed = 5f;
+			break;
+		case Element.NITROGEN:
+			maxSpeed = 6f;
+			break;
+		case Element.OXYGEN:
+			maxSpeed = 4f;
+			break;
+		default: break;
+		}
+
         // clamp velocity to maxspeed
-        if (rb.velocity.sqrMagnitude > maxSpeed * maxSpeed) {
-            rb.velocity = rb.velocity.normalized * maxSpeed;
+        if (rb.velocity.sqrMagnitude > (maxSpeed * maxSpeed)) {
+			rb.velocity = rb.velocity.normalized * maxSpeed;
         }
         updateCamera = true;
     }
@@ -135,7 +153,13 @@ public class Player : MonoBehaviour {
         }
     }
 
+	public int getStrength(int i)
+	{
+		return bondStrengths [i];
+	}
+
     private void DetachAtom(int i, bool stopUpdate = false) {
+		currentIndex = i;
         if (bondPositions[i]) {
             bondPositions[i].transform.parent = null;
             AtomBehavior ab = bondPositions[i].GetComponent<AtomBehavior>();
@@ -144,15 +168,12 @@ public class Player : MonoBehaviour {
                 ab.stopUpdate = Time.time + 2f;
             }
             bondPositions[i] = null;
-			bondStrengths[i] = 0;
-            bonds[i].SetActive(false);
+			bonds[i].SetActive(false);
             atom.currentBonds--;
-
-			ab.gameObject.tag = "Atom";
 
 			Atom atomScript = ab.GetComponent<Atom>();			// reduce weight
 			playerWeight -= atomScript.weight;
-			ab.gameObject.tag = "Atom";							// changing tag back to "Atom"
+
         }
     }
 
@@ -268,13 +289,8 @@ public class Player : MonoBehaviour {
             bonds[index].SetActive(true);
             atom.currentBonds++;
 
-			//other.gameObject.tag = "AtomBond";
-
-			//atomScript.gameObject.tag = "AtomBond";		
-			Debug.Log (other.gameObject.tag);						// This prints "Atom" properly
-			other.gameObject.tag = "AtomBond";						// assigning tag to attached atoms as "AtomBond"
 			playerWeight += atomScript.weight;						// add weight
-			Debug.Log (other.gameObject.tag);						// This prints "AtomBond"
+
         }
     }
 
