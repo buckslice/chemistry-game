@@ -43,6 +43,7 @@ public class Player : MonoBehaviour {
 
         bondPositions = new Transform[4];
 		bondStrengths = new int[4];
+
         bonds = new GameObject[4];
 
         for (int i = 0; i < bonds.Length; i++) {
@@ -55,6 +56,7 @@ public class Player : MonoBehaviour {
             go.SetActive(false);
 
             bonds[i] = go;
+			bondStrengths[i] = 0;
         }
     }
 
@@ -212,13 +214,13 @@ public class Player : MonoBehaviour {
 					bondStrengths[index] = 413;
 					break;
 				case Element.CARBON:
-					bondStrengths[index] = 347;
+					bondStrengths[index] = 347;	// single bond only
 					break;
 				case Element.NITROGEN:
 					bondStrengths[index] = 305;
 					break;
 				case Element.OXYGEN:
-					bondStrengths[index] = 358;
+					bondStrengths[index] = 745; // single bond is 358
 					break;
 				default: break;
 				}
@@ -233,7 +235,7 @@ public class Player : MonoBehaviour {
 					bondStrengths[index] = 305;
 					break;
 				case Element.NITROGEN:
-					bondStrengths[index] = 160;
+					bondStrengths[index] = 945; // single bond is 160
 					break;
 				case Element.OXYGEN:
 					bondStrengths[index] = 201;
@@ -248,13 +250,13 @@ public class Player : MonoBehaviour {
 					bondStrengths[index] = 467;
 					break;
 				case Element.CARBON:
-					bondStrengths[index] = 358;
+					bondStrengths[index] = 745; // single bond is 358
 					break;
 				case Element.NITROGEN:
 					bondStrengths[index] = 201;
 					break;
 				case Element.OXYGEN:
-					bondStrengths[index] = 204;
+					bondStrengths[index] = 498; // single bond is 204
 					break;
 				default: break;
 				}

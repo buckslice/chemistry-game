@@ -39,6 +39,8 @@ public class Level : MonoBehaviour {
     public const int NITROGEN = 8;
     public const int OXYGEN = 9;
 
+	public const int WEIGHT_DOOR = 10;
+
     public static Player player;
 
     // Use this for initialization
@@ -200,6 +202,11 @@ public class Level : MonoBehaviour {
                         a.setElement(Element.OXYGEN);
                         tiles[x][y] = GROUND;
                         break;
+					case WEIGHT_DOOR:
+						GameObject go2 = (GameObject)Instantiate(splitterPrefab, spawn, Quaternion.identity); // change prefab
+						go2.transform.parent = transform;
+						tiles[x][y] = GROUND;
+						break;
                     default:
                         break;
                 }
