@@ -4,7 +4,7 @@ using System.Collections;
 public class WeightDoor : MonoBehaviour {
 
 	public bool isLess;
-	
+	private Player playerScript;
 	void Start()
 	{
 		MaterialPropertyBlock mpb = new MaterialPropertyBlock ();
@@ -14,8 +14,13 @@ public class WeightDoor : MonoBehaviour {
 
 	void OnCollisionEnter(Collision col) {
 		if (col.gameObject.CompareTag("Player") || col.gameObject.CompareTag("AtomBond")) {	
-																		
-			if((isLess && Player.atom.weight < 29) || (!isLess && Player.atom.weight > 29))
+					
+			if(col.gameObject.CompareTag("Player"))
+				playerScript = col.gameObject.GetComponent<Player>();			
+			else
+			   	playerScript = col.transform.parent.gameObject.GetComponent<Player>();			
+
+			if((isLess && playerScript.playerWeight < 29) || (!isLess && playerScript.playerWeight > 29))
 			{
 				gameObject.SetActive(false);
 			}
