@@ -19,7 +19,7 @@ public class Atom : MonoBehaviour {
     public Color color { get; set; }
     private MaterialPropertyBlock mpb;
     private MeshRenderer mr;
-
+	
     public void setElement(Element e) {
         this.element = e;
         mr = transform.Find("Model").GetComponent<MeshRenderer>();

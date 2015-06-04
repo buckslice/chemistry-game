@@ -30,8 +30,6 @@ public class Splitter : MonoBehaviour {
 
 			int strength = p.getStrength(index);
 
-			Debug.Log (strength);
-
 			if((isWeak && strength < 475) || (!isWeak && strength >= 475))
 				col.gameObject.SetActive(false);
 

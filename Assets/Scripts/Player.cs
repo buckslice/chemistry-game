@@ -6,8 +6,7 @@ public class Player : MonoBehaviour {
     public float mouseSensitivity = .1f;
     public float accel = 15f;
     public float maxSpeed = 8f;
-	private int currentIndex;
-    // camera variables
+	// camera variables
     private Transform cam;
     private float yaw = 0f;
     private float pitch = 0f;
@@ -17,7 +16,6 @@ public class Player : MonoBehaviour {
     private float lcamDistance;
     private bool updateCamera = false;
 	public int playerWeight = 0;
-	//private int initialWeight;
 
     private Rigidbody rb;
     public Object bond;
@@ -35,7 +33,7 @@ public class Player : MonoBehaviour {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
         atom = GetComponent<Atom>();
-        atom.setElement(Element.HYDROGEN);
+        atom.setElement(Element.CARBON);
         gameObject.name = "Player";
 		playerWeight += atom.weight;
 		//initialWeight = playerWeight;
@@ -159,8 +157,7 @@ public class Player : MonoBehaviour {
 	}
 
     private void DetachAtom(int i, bool stopUpdate = false) {
-		currentIndex = i;
-        if (bondPositions[i]) {
+		if (bondPositions[i]) {
             bondPositions[i].transform.parent = null;
             AtomBehavior ab = bondPositions[i].GetComponent<AtomBehavior>();
             ab.AddRigidBody();
@@ -169,7 +166,76 @@ public class Player : MonoBehaviour {
             }
             bondPositions[i] = null;
 			bonds[i].SetActive(false);
-            atom.currentBonds--;
+
+			//Atom atomScript = other.GetComponent<Atom>();			
+			//Element e2;
+			//e2 = atomScript.element;
+			Element e1 = atom.element;
+			int strength = bondStrengths[i];
+			switch (e1) {
+			case Element.HYDROGEN:
+				atom.currentBonds--;
+				break;
+			case Element.CARBON:
+				switch (strength)
+				{
+				case 413:
+					atom.currentBonds--;
+					break;
+				case 347:
+					atom.currentBonds--;
+					break;
+				case 891:
+					atom.currentBonds -= 3;
+					break;
+				case 745:
+					atom.currentBonds -= 2;
+					break;
+				default: break;
+				}
+				break;
+			case Element.NITROGEN:
+				switch (strength)
+				{
+				case 391:
+					atom.currentBonds--;
+					break;
+				case 891:
+					atom.currentBonds -= 3;
+					break;
+				case 945:
+					atom.currentBonds -= 3;
+					break;
+				case 201:
+					atom.currentBonds --;
+					break;
+				default: break;
+				}
+				break;
+			case Element.OXYGEN:
+				switch (strength)
+				{
+				case 467:
+					atom.currentBonds--;
+					break;
+				case 745:
+					atom.currentBonds -= 2;
+					break;
+				case 201:
+					atom.currentBonds--;
+					break;
+				case 498:
+					atom.currentBonds -= 2;
+					break;
+				default: break;
+				}
+				break;
+			default: break;
+			}
+			
+
+
+            //atom.currentBonds--;
 
 			Atom atomScript = ab.GetComponent<Atom>();			// reduce weight
 			playerWeight -= atomScript.weight;
@@ -227,21 +293,26 @@ public class Player : MonoBehaviour {
 					break;
 				default: break;
 				}
+				atom.currentBonds++;
 				break;
 			case Element.CARBON:
 				switch (e2)
 				{
 				case Element.HYDROGEN:
 					bondStrengths[index] = 413;
+					atom.currentBonds++;
 					break;
 				case Element.CARBON:
 					bondStrengths[index] = 347;	// single bond only
+					atom.currentBonds++;
 					break;
 				case Element.NITROGEN:
-					bondStrengths[index] = 305;
+					bondStrengths[index] = 891; // triple bond (for cyanide)
+					atom.currentBonds += 3;
 					break;
 				case Element.OXYGEN:
 					bondStrengths[index] = 745; // single bond is 358
+					atom.currentBonds += 2;
 					break;
 				default: break;
 				}
@@ -251,15 +322,19 @@ public class Player : MonoBehaviour {
 				{
 				case Element.HYDROGEN:
 					bondStrengths[index] = 391;
+					atom.currentBonds++;
 					break;
 				case Element.CARBON:
-					bondStrengths[index] = 305;
+					bondStrengths[index] = 891; // triple bond (for cyanide)
+					atom.currentBonds += 3;
 					break;
 				case Element.NITROGEN:
 					bondStrengths[index] = 945; // single bond is 160
+					atom.currentBonds += 3;
 					break;
 				case Element.OXYGEN:
 					bondStrengths[index] = 201;
+					atom.currentBonds++;
 					break;
 				default: break;
 				}
@@ -269,15 +344,19 @@ public class Player : MonoBehaviour {
 				{
 				case Element.HYDROGEN:
 					bondStrengths[index] = 467;
+					atom.currentBonds++;
 					break;
 				case Element.CARBON:
 					bondStrengths[index] = 745; // single bond is 358
+					atom.currentBonds += 2;
 					break;
 				case Element.NITROGEN:
 					bondStrengths[index] = 201;
+					atom.currentBonds++;
 					break;
 				case Element.OXYGEN:
 					bondStrengths[index] = 498; // single bond is 204
+					atom.currentBonds += 2;
 					break;
 				default: break;
 				}
@@ -287,7 +366,7 @@ public class Player : MonoBehaviour {
 
 
             bonds[index].SetActive(true);
-            atom.currentBonds++;
+            //atom.currentBonds++;
 
 			playerWeight += atomScript.weight;						// add weight
 
