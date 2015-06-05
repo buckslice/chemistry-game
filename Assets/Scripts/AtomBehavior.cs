@@ -10,7 +10,9 @@ public class AtomBehavior : MonoBehaviour {
     private float idle;
     private float timeSincePath;
     private int x, y, lastX, lastY;
-    private Atom atom;
+    public Atom atom { get; set; }
+
+    public bool followPlayer;
 
     public bool followPlayer;
 
