@@ -20,7 +20,7 @@ public class WeightDoor : MonoBehaviour {
                 playerScript = col.transform.parent.gameObject.GetComponent<Player>();
             }
 
-            if ((isLess && playerScript.playerWeight < 29) || (!isLess && playerScript.playerWeight > 29)) {
+            if ((isLess && playerScript.playerWeight < 29) || (!isLess && playerScript.playerWeight >= 29)) {
                 gameObject.SetActive(false);
             }
 

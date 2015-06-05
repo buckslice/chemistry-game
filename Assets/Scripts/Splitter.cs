@@ -15,7 +15,7 @@ public class Splitter : MonoBehaviour {
         if (col.CompareTag("Bond")) {
             Bond bond = col.GetComponent<Bond>();
 
-            if ((isWeak && bond.strength < 475) || (!isWeak && bond.strength >= 475)) {
+            if ((isWeak && bond.strength < 430) || (!isWeak && bond.strength >= 430)) {
                 bond.decrement();
             }
         }

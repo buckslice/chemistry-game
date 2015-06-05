@@ -37,7 +37,7 @@ public class Atom : MonoBehaviour {
         },
         new int[4][]{
             new int[]{0,  0,  0,  0},   //--- --- --- ---
-            new int[]{0,839,891,1072},  //--- C~C C~N C~O
+            new int[]{0,839,891,  0},   //--- C~C C~N C~O
             new int[]{0,891,941,  0},   //--- N~C N~N ---
             new int[]{0,1072, 0,  0},   //--- O~C --- ---
         },
