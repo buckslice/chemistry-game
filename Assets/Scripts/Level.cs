@@ -31,17 +31,16 @@ public class Level : MonoBehaviour {
     public const int GROUND = 0;
     public const int WALL = 1;
     public const int PLAYER_SPAWN = 2;
-    public const int SPLITTER_WEAK = 10;
-	public const int SPLITTER_STRONG = 11;
-	public const int EXPLODER = 5;
+	public const int EXPLODER = 3;
+	public const int WEIGHT_DOOR_LESS = 4;
+	public const int WEIGHT_DOOR_MORE = 5;
+    public const int SPLITTER_WEAK = 6;
+	public const int SPLITTER_STRONG = 7;
     
-    public const int HYDROGEN = 6;
-    public const int CARBON = 7;
-    public const int NITROGEN = 8;
-    public const int OXYGEN = 9;
-
-	public const int WEIGHT_DOOR_LESS = 3;
-	public const int WEIGHT_DOOR_MORE = 4;
+    public const int HYDROGEN = 8;
+    public const int CARBON = 9;
+    public const int NITROGEN = 10;
+    public const int OXYGEN = 11;
 
     public static Player player;
 

@@ -14,6 +14,7 @@ public class Atom : MonoBehaviour {
     public int maxBonds { get; private set; }
     public int weight;
     public int currentBonds { get; set; }
+    public float maxSpeed;
 
     private Color elementColor;
     public Color color { get; set; }
@@ -31,24 +32,28 @@ public class Atom : MonoBehaviour {
             case Element.HYDROGEN:
                 maxBonds = 1;
 				weight = 1;
+                maxSpeed = 8f;
                 elementColor = Color.magenta;
                 tex = Textures.hydrogen;
                 break;
             case Element.CARBON:
                 maxBonds = 4;
 				weight = 12;
+                maxSpeed = 5f;
                 elementColor = Color.white;
                 tex = Textures.carbon;
                 break;
             case Element.NITROGEN:
                 maxBonds = 3;
 				weight = 14;
+                maxSpeed = 6f;
                 elementColor = Color.green;
                 tex = Textures.nitrogen;
                 break;
             case Element.OXYGEN:
                 maxBonds = 2;
 				weight = 16;
+                maxSpeed = 4f;
                 elementColor = Color.blue;
                 tex = Textures.oxygen;
                 break;

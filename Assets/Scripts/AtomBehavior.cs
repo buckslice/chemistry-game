@@ -12,6 +12,8 @@ public class AtomBehavior : MonoBehaviour {
     private int x, y, lastX, lastY;
     private Atom atom;
 
+    public bool followPlayer;
+
     // Use this for initialization
     void Awake() {
         rb = GetComponent<Rigidbody>();
@@ -29,21 +31,21 @@ public class AtomBehavior : MonoBehaviour {
     }
 
     void Update() {
-		if (!rb) {
-			gameObject.tag = "AtomBond";
-		} else if (stopUpdate > Time.time || !Pathfinder.player) {
-			path = Vector3.zero;
-			atom.color = Color.red;
-			gameObject.tag = "Untagged";
-		} else {	
-			atom.resetColor ();
-			gameObject.tag = "Atom";
-		}
+        if (!rb) {
+            gameObject.tag = "AtomBond";
+        } else if (stopUpdate > Time.time || !Pathfinder.player) {
+            path = Vector3.zero;
+            atom.color = Color.red;
+            gameObject.tag = "Untagged";
+        } else {
+            atom.resetColor();
+            gameObject.tag = "Atom";
+        }
     }
 
     // Update is called once per frame
     void FixedUpdate() {
-        if (!rb || !grounded || stopUpdate > Time.time) {
+        if (!rb || !grounded || stopUpdate > Time.time || !shouldPath()) {
             path = Vector3.zero;
             return;
         }
@@ -69,35 +71,31 @@ public class AtomBehavior : MonoBehaviour {
             }
         }
 
-		rb.AddForce (path * 10f);
+        rb.AddForce(path * 10f);
 
         // clamp velocity to maxspeed
-        float maxSpeed = 5f;
-		Element e1 = atom.element;
-		switch (e1)
-		{
-		case Element.HYDROGEN:
-			maxSpeed = 8f;
-			break;
-		case Element.CARBON:
-			maxSpeed = 5.5f;
-			break;
-		case Element.NITROGEN:
-			maxSpeed = 4f;
-			break;
-		case Element.OXYGEN:
-			maxSpeed = 3f;
-			break;
-		default: break;
-		}
-
-		if (rb.velocity.sqrMagnitude > (maxSpeed * maxSpeed)) {
-			rb.velocity = rb.velocity.normalized * maxSpeed;
+        if (rb.velocity.sqrMagnitude > atom.maxSpeed * atom.maxSpeed) {
+            rb.velocity = rb.velocity.normalized * atom.maxSpeed;
         }
         grounded = false;
 
         lastX = x;
         lastY = y;
+    }
+
+    private bool shouldPath() {
+        if (!followPlayer) {
+            return false;
+        }
+
+        Ray r = new Ray(transform.position, Level.player.transform.position - transform.position);
+        RaycastHit info;
+        //Debug.DrawRay(transform.position, Level.player.transform.position - transform.position, Color.green, .05f);
+        if (Physics.Raycast(r, out info)) {
+            return info.collider.CompareTag("Player") || info.collider.CompareTag("AtomBond");
+        } else {
+            return false;
+        }
     }
 
     void OnCollisionStay(Collision col) {
