@@ -33,7 +33,7 @@ public class Player : MonoBehaviour {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
         atom = GetComponent<Atom>();
-        atom.setElement(Element.CARBON);
+		atom.setElement (Element.NITROGEN);
         initAtom(atom); // sean
         atom.maxSpeed += 2f; // makes player slightly faster than other atoms
         gameObject.name = "Player";
