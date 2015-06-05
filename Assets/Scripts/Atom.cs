@@ -11,16 +11,15 @@ public enum Element {
 public class Atom : MonoBehaviour {
 
     public Element element { get; private set; }
+    public int currentBonds;
     public int maxBonds;
     public int weight;
-    public int currentBonds;
     public float maxSpeed;
 
     private Color elementColor;
     public Color color { get; set; }
     private MaterialPropertyBlock mpb;
     private MeshRenderer mr;
-    public static string str; //Sean
 
     public static readonly int[][][] bondStrengths = new int[3][][]{
         new int[4][]{
@@ -52,7 +51,6 @@ public class Atom : MonoBehaviour {
         Texture tex = Textures.hydrogen;
         switch (e) {
             case Element.HYDROGEN:
-                str = "HYDROGEN";
                 maxBonds = 1;
                 weight = 1;
                 maxSpeed = 8f;
@@ -60,7 +58,6 @@ public class Atom : MonoBehaviour {
                 tex = Textures.hydrogen;
                 break;
             case Element.CARBON:
-                str = "CARBON";
                 maxBonds = 4;
                 weight = 12;
                 maxSpeed = 5f;
@@ -68,7 +65,6 @@ public class Atom : MonoBehaviour {
                 tex = Textures.carbon;
                 break;
             case Element.NITROGEN:
-                str = "NITROGEN";
                 maxBonds = 3;
                 weight = 14;
                 maxSpeed = 6f;
@@ -76,7 +72,6 @@ public class Atom : MonoBehaviour {
                 tex = Textures.nitrogen;
                 break;
             case Element.OXYGEN:
-                str = "OXYGEN";
                 maxBonds = 2;
                 weight = 16;
                 maxSpeed = 4f;

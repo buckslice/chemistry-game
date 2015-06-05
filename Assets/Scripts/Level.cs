@@ -6,6 +6,8 @@ using System.Collections.Generic;
 [RequireComponent(typeof(MeshCollider))]
 public class Level : MonoBehaviour {
 
+    public static Level instance { get; private set; }
+
     public Object splitterPrefab;
     public Object bonderPrefab;
     public Object exploderPrefab;
@@ -17,7 +19,6 @@ public class Level : MonoBehaviour {
     public int maxAtoms = 100;
     public float spawnInterval = .5f;
 
-    private float spawnTime = 0f;
     public static int currentLevel = 1;
     private Mesh mesh;  // current level mesh
 
@@ -46,44 +47,55 @@ public class Level : MonoBehaviour {
     public const int NITROGEN = 11;
     public const int OXYGEN = 12;
 
-    public static Player player;
+    public Player player { get; private set; }
 
-    public static string[] levelStr; //sean
-    public static int curLvl = 0;
+    public static int[][] levelMolecs = new int[][]{
+        new int[]{1,1,1,0},
+        new int[]{0,0,0,0},
+        new int[]{1,0,0,0},
+        new int[]{4,4,0,0},
+        new int[]{3,1,0,0},
+        new int[]{4,4,4,0},
+    };
+
+    public static int[][] bondNumbers = new int[][]{
+        new int[]{1,1,1,0},
+        new int[]{0,0,0,0},
+        new int[]{1,0,0,0},
+        new int[]{2,2,0,0},
+        new int[]{3,1,0,0},
+        new int[]{1,1,2,0},
+    };
 
     // Use this for initialization
     void Awake() {
-        levelStr = new string[10]; //change the size for the number of levels here
-        levelStr[0] = "NHHH"; //add the wining codes here
-		levelStr[1] = "C"; //add the wining codes here
-		levelStr[2] = "HH"; //add the wining codes here
-		levelStr[3] = "COO"; //add the wining codes here
-		levelStr[4] = "CNH"; //add the wining codes here
-		levelStr[5] = "NOOO"; //add the wining codes here
-
+        instance = this;
         player = GameObject.Find("Player").GetComponent<Player>();
-
         Textures.load();
-        LoadLevel();
-        
     }
 
-	public void LoadNextLevel() {
+    void Start() {
+        LoadLevel();
+    }
 
-		Level.currentLevel++;
-		LoadLevel();
-
-	}
+    public void LoadNextLevel() {
+        Level.currentLevel++;
+        LoadLevel();
+    }
 
     void Update() {
-        if (atoms < maxAtoms && (Input.GetKeyDown(KeyCode.R))) { //|| spawnTime < Time.time)) {
+        if (atoms < maxAtoms && Input.GetKeyDown(KeyCode.R)) {
             Instantiate(atomPrefab, Pathfinder.instance.getRandomWalkable(), Quaternion.identity);
-            spawnTime = Time.time + spawnInterval;
             atoms++;
         }
     }
 
     public void LoadLevel() {
+        // destroy all objects loaded from last level
+        for (int i = 0; i < transform.childCount; i++) {
+            transform.GetChild(i).gameObject.SetActive(false);
+            Destroy(transform.GetChild(i).gameObject);
+        }
 
         // load level texture and get pixel array
         Texture2D tex = (Texture2D)Resources.Load("Levels/level" + currentLevel);
@@ -191,7 +203,7 @@ public class Level : MonoBehaviour {
                 switch (tiles[x][y]) {
                     case PLAYER_SPAWN:
                         player.transform.position = spawn + Vector3.up;
-						player.ResetPlayer();
+                        player.ResetPlayer();
                         break;
                     case SPLITTER_WEAK:
                         GameObject go = (GameObject)Instantiate(splitterPrefab, spawn, Quaternion.identity);
@@ -223,33 +235,37 @@ public class Level : MonoBehaviour {
                     case HYDROGEN:
                         Atom a = ((GameObject)Instantiate(atomPrefab, spawn + Vector3.up, Quaternion.identity)).GetComponent<Atom>();
                         a.setElement(Element.HYDROGEN);
+                        a.transform.parent = transform;
                         tiles[x][y] = GROUND;
                         break;
                     case CARBON:
                         a = ((GameObject)Instantiate(atomPrefab, spawn + Vector3.up, Quaternion.identity)).GetComponent<Atom>();
                         a.setElement(Element.CARBON);
+                        a.transform.parent = transform;
                         tiles[x][y] = GROUND;
                         break;
                     case NITROGEN:
                         a = ((GameObject)Instantiate(atomPrefab, spawn + Vector3.up, Quaternion.identity)).GetComponent<Atom>();
                         a.setElement(Element.NITROGEN);
+                        a.transform.parent = transform;
                         tiles[x][y] = GROUND;
                         break;
                     case OXYGEN:
                         a = ((GameObject)Instantiate(atomPrefab, spawn + Vector3.up, Quaternion.identity)).GetComponent<Atom>();
                         a.setElement(Element.OXYGEN);
+                        a.transform.parent = transform;
                         tiles[x][y] = GROUND;
                         break;
                     case WEIGHT_DOOR_LESS:
-                        GameObject go2 = (GameObject)Instantiate(weightDoorPrefab, spawn, Quaternion.identity);
-                        go2.GetComponent<WeightDoor>().isLess = true;
-                        go2.transform.parent = transform;
+                        go = (GameObject)Instantiate(weightDoorPrefab, spawn, Quaternion.identity);
+                        go.GetComponent<WeightDoor>().isLess = true;
+                        go.transform.parent = transform;
                         tiles[x][y] = GROUND;
                         break;
                     case WEIGHT_DOOR_MORE:
-                        go2 = (GameObject)Instantiate(weightDoorPrefab, spawn, Quaternion.identity);
-                        go2.GetComponent<WeightDoor>().isLess = false;
-                        go2.transform.parent = transform;
+                        go = (GameObject)Instantiate(weightDoorPrefab, spawn, Quaternion.identity);
+                        go.GetComponent<WeightDoor>().isLess = false;
+                        go.transform.parent = transform;
                         tiles[x][y] = GROUND;
                         break;
                     default:

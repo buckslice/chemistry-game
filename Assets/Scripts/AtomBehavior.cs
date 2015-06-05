@@ -90,7 +90,7 @@ public class AtomBehavior : MonoBehaviour {
             return false;
         }
 
-        Ray r = new Ray(transform.position, Level.player.transform.position - transform.position);
+        Ray r = new Ray(transform.position, Level.instance.player.transform.position - transform.position);
         RaycastHit info;
         //Debug.DrawRay(transform.position, Level.player.transform.position - transform.position, Color.green, .05f);
         if (Physics.Raycast(r, out info)) {

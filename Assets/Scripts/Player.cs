@@ -14,68 +14,63 @@ public class Player : MonoBehaviour {
     private float lpitch = 0f;
     private float lcamDistance;
     private bool updateCamera = false;
-    public int playerWeight = 0;
-    private string targetElement; //Sean
-	public static bool corElem; //Sean
-	public Vector3 start;
+    public int totalPlayerWeight = 0;
 
     private Rigidbody rb;
     public Object bond;
-    private Transform[] bondPositions;
+    public AtomBehavior[] bondedAtoms;
     private Bond[] bonds;
     public float bondLength = 1.25f;
     public Atom atom { get; private set; }
 
     public static string elemStr;
-	
-    // Use this for initialization
-    void Start() {
 
-		ResetPlayer ();
-        
+    // Use this for initialization
+    void Awake() {
+        //transform.position = start;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        cam = Camera.main.transform;
+        rb = GetComponent<Rigidbody>();
+        rb.freezeRotation = true;
+
+        bondedAtoms = new AtomBehavior[4];
+        bonds = new Bond[4];
+
+        for (int i = 0; i < bonds.Length; i++) {
+            GameObject go = (GameObject)Instantiate(bond);
+            go.transform.parent = transform;
+            go.transform.localPosition = Vector3.zero;
+
+            Vector3 ls = go.transform.localScale;
+            go.transform.localScale = new Vector3(ls.x, bondLength, ls.z);
+            bonds[i] = go.GetComponent<Bond>();
+        }
     }
 
-	public void ResetPlayer() {
+    public void ResetPlayer() {
+        atom = GetComponent<Atom>();
 
-		playerWeight = 0;
-		corElem = false;
-		//transform.position = start;
-		Cursor.lockState = CursorLockMode.Locked;
-		Cursor.visible = false;
-		cam = Camera.main.transform;
-		rb = GetComponent<Rigidbody>();
-		rb.freezeRotation = true;
-		atom = GetComponent<Atom>();
-		if (Level.currentLevel == 1 || Level.currentLevel == 6) {
-			atom.setElement (Element.NITROGEN);
-		} else if (Level.currentLevel == 2 || Level.currentLevel == 4 || Level.currentLevel == 5) {
-			atom.setElement (Element.CARBON);
-		} else if (Level.currentLevel == 3) {
-			atom.setElement (Element.HYDROGEN);
-		}
-		
-		start = transform.position;
-		
-		atom.maxSpeed += 1f; // makes player slightly faster than other atoms
-		gameObject.name = "Player";
-		playerWeight += atom.weight;
-		
-		bondPositions = new Transform[4];
-		bonds = new Bond[4];
-		
-		for (int i = 0; i < bonds.Length; i++) {
-			GameObject go = (GameObject)Instantiate(bond);
-			go.transform.parent = transform;
-			go.transform.localPosition = Vector3.zero;
-			
-			Vector3 ls = go.transform.localScale;
-			go.transform.localScale = new Vector3(ls.x, bondLength, ls.z);
-			bonds[i] = go.GetComponent<Bond>();
-		}
-		//this.DetachConnectedAtoms ();
+        if (Level.currentLevel == 1 || Level.currentLevel == 6) {
+            atom.setElement(Element.NITROGEN);
+        } else if (Level.currentLevel == 2 || Level.currentLevel == 4 || Level.currentLevel == 5) {
+            atom.setElement(Element.CARBON);
+        } else if (Level.currentLevel == 3) {
+            atom.setElement(Element.HYDROGEN);
+        }
+        atom.maxSpeed += 1f; // makes player slightly faster than other atoms
+        totalPlayerWeight = atom.weight;
+        gameObject.name = "Player";
 
-		
-	}
+        for (int i = 0; i < 4; i++) {
+            if (bondedAtoms[i]) {
+                Destroy(bondedAtoms[i].gameObject);
+            }
+            bondedAtoms[i] = null;
+            bonds[i].disable();
+        }
+
+    }
 
     void FixedUpdate() {
         // apply player movement
@@ -92,16 +87,15 @@ public class Player : MonoBehaviour {
 
     void Update() {
         // for each of your bonds lerp them towards their correct positions
-        corElem = checkElement(); //Sean
         atom.currentBonds = 0;
-        for (int i = 0; i < bondPositions.Length; i++) {
-            if (bondPositions[i]) {
+        for (int i = 0; i < bondedAtoms.Length; i++) {
+            if (bondedAtoms[i]) {
                 if (!bonds[i].gameObject.activeInHierarchy) {
                     DetachAtom(i, true);
                 } else {
-                    Vector3 fromPos = bondPositions[i].localPosition;
+                    Vector3 fromPos = bondedAtoms[i].transform.localPosition;
                     Vector3 toPos = getLocalBondDir(i) * bondLength;
-                    bondPositions[i].localPosition = Vector3.Lerp(fromPos, toPos, Time.deltaTime * 5f);
+                    bondedAtoms[i].transform.localPosition = Vector3.Lerp(fromPos, toPos, Time.deltaTime * 5f);
                     bonds[i].transform.localEulerAngles = new Vector3(90f, i * 90f, 0f);
                     atom.currentBonds += bonds[i].numberBonds;
                 }
@@ -149,22 +143,22 @@ public class Player : MonoBehaviour {
     }
 
     public void DetachConnectedAtoms() {
-        for (int i = 0; i < bondPositions.Length; i++) {
+        for (int i = 0; i < bondedAtoms.Length; i++) {
             DetachAtom(i);
         }
     }
 
     private void DetachAtom(int i, bool stopUpdate = false) {
-        if (bondPositions[i]) {
-            bondPositions[i].transform.parent = null;
-            AtomBehavior ab = bondPositions[i].GetComponent<AtomBehavior>();
+        if (bondedAtoms[i]) {
+            AtomBehavior ab = bondedAtoms[i];
+            ab.transform.parent = Level.instance.transform;
             ab.AddRigidBody();
             if (stopUpdate) {
                 ab.stopUpdate = Time.time + 2f;
             }
-            bondPositions[i] = null;
+            bondedAtoms[i] = null;
             bonds[i].disable();
-            playerWeight -= ab.atom.weight;
+            totalPlayerWeight -= ab.atom.weight;
 
         }
     }
@@ -173,8 +167,8 @@ public class Player : MonoBehaviour {
         // find closest available bond location
         float minDistSqrd = float.MaxValue;
         int index = -1;
-        for (int i = 0; i < bondPositions.Length; i++) {
-            if (!bondPositions[i]) {
+        for (int i = 0; i < bondedAtoms.Length; i++) {
+            if (!bondedAtoms[i]) {
                 Vector3 bondedAtomPos = transform.position + transform.TransformDirection(getLocalBondDir(i)) * bondLength;
                 float sqrMag = Vector3.SqrMagnitude(bondedAtomPos - other.position);
                 if (sqrMag < minDistSqrd) {
@@ -188,10 +182,10 @@ public class Player : MonoBehaviour {
             AtomBehavior ab = other.GetComponent<AtomBehavior>();
             Destroy(ab.rb);
             other.parent = transform;
-            bondPositions[index] = other;
+            bondedAtoms[index] = ab;
 
             bonds[index].enable(atom.element, ab.atom.element);
-            playerWeight += ab.atom.weight;						// add weight
+            totalPlayerWeight += ab.atom.weight;						// add weight
 
         }
     }
@@ -240,50 +234,20 @@ public class Player : MonoBehaviour {
         return Vector3.up;
     }
 
-    private bool checkElement()
-    {
-        targetElement = Level.levelStr[Level.currentLevel-1];
-
-
-        if (targetElement.Length != (atom.currentBonds + 1))
-        {
-            return false;
-        }
-
-
-        foreach (char c in targetElement)
-        {
-
-            switch (c)
-            {
-                case 'C':
-                    if (this.transform.FindChild("CARBON") == null && Atom.str != "CARBON")
-                    {
-                        return false;
-                    }
-                    break;
-                case 'N':
-                    if (this.transform.FindChild("NITROGEN") == null && Atom.str != "NITROGEN")
-                    {
-                        return false;
-                    }
-                    break;
-                case 'H':
-                    if (this.transform.FindChild("HYDROGEN") == null && Atom.str != "HYDROGEN")
-                    {
-                        return false;
-                    }
-                    break;
-                case 'O':
-                    if (this.transform.FindChild("OXYGEN") == null && Atom.str != "OXYGEN")
-                    {
-                        return false;
-                    }
-                    break;
+    public bool checkElement() {
+        for (int i = 0; i < 4; i++) {
+            int m = Level.levelMolecs[Level.currentLevel - 1][i];
+            int b = Level.bondNumbers[Level.currentLevel - 1][i];
+            // if no bonded atom in this slot but there should be
+            if (!bondedAtoms[i] && m != 0) {
+                return false;
+            } else if (bondedAtoms[i] && (int)bondedAtoms[i].atom.element != m - 1) {
+                return false;
+            } else if (bonds[i].numberBonds != b) {
+                return false;
             }
         }
 
         return true;
-
     }
 }

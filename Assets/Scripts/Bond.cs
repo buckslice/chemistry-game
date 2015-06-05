@@ -45,7 +45,7 @@ public class Bond : MonoBehaviour {
     }
 
     public void increment() {
-        if (cooldown > Time.time || !Level.player.atom.canBond()) {
+        if (cooldown > Time.time || !Level.instance.player.atom.canBond()) {
             return;
         }
         int s = Atom.getBondStrength(numberBonds + 1, e1, e2);

@@ -23,7 +23,7 @@ public class Exploder : MonoBehaviour {
 
     void OnTriggerStay(Collider col) {
         if (cooldown < 0f && col.CompareTag("Player")) {
-            Level.player.explodeAtoms();
+            Level.instance.player.explodeAtoms();
             cooldown = 5f;
         }
     }
