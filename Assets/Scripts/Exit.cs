@@ -25,7 +25,20 @@ public class Exit : MonoBehaviour {
         if (coll.gameObject.tag == "Player") {
 
             if (Level.instance.player.checkElement()) {
-                //Application.OpenURL("http://www.google.com");
+                
+				if(Level.currentLevel == 1)
+					Application.OpenURL("https://www.youtube.com/watch?v=HvVUtpdK7xw");
+				if(Level.currentLevel == 2)
+					Application.OpenURL("https://www.youtube.com/watch?v=txkRCIPSsjM");
+				if(Level.currentLevel == 3)
+					Application.OpenURL("https://www.youtube.com/watch?v=CiP-xnOavEs");
+				if(Level.currentLevel == 4)
+					Application.OpenURL("https://www.youtube.com/watch?v=zbUPjHHml1E");
+				if(Level.currentLevel == 5)
+					Application.OpenURL("https://www.youtube.com/watch?v=FaMWxLCGY0U");
+				if(Level.currentLevel == 6)
+					Application.OpenURL("https://www.youtube.com/watch?v=uCwHzTsx5yY");
+
                 Level.instance.LoadNextLevel();
                 Level.instance.player.source.PlayOneShot(Level.instance.player.exitSound, .7f);
             } else {
