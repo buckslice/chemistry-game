@@ -58,9 +58,9 @@ public class Level : MonoBehaviour {
 		levelStr[1] = "C"; //add the wining codes here
 		levelStr[2] = "HH"; //add the wining codes here
 		levelStr[3] = "COO"; //add the wining codes here
-		levelStr[4] = "CNH"; //add the wining codes here
+		levelStr[4] = "CHN"; //add the wining codes here
 		levelStr[5] = "NOOO"; //add the wining codes here
-
+		levelStr[6] = "You win!";
         player = GameObject.Find("Player").GetComponent<Player>();
 
         Textures.load();
@@ -71,7 +71,11 @@ public class Level : MonoBehaviour {
 	public void LoadNextLevel() {
 
 		Level.currentLevel++;
-		LoadLevel();
+		if (Level.currentLevel == 7) {
+			Debug.Log ("You win!");
+		} else {
+			LoadLevel ();
+		}
 
 	}
 

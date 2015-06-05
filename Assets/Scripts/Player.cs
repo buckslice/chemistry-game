@@ -19,6 +19,8 @@ public class Player : MonoBehaviour {
 	public static bool corElem; //Sean
 	public Vector3 start;
 
+	public string goal;
+
     private Rigidbody rb;
     public Object bond;
     private Transform[] bondPositions;
@@ -31,6 +33,7 @@ public class Player : MonoBehaviour {
     // Use this for initialization
     void Start() {
 
+		goal = "";
 		ResetPlayer ();
         
     }
@@ -38,6 +41,7 @@ public class Player : MonoBehaviour {
 	public void ResetPlayer() {
 
 		playerWeight = 0;
+		goal = "";
 		corElem = false;
 		//transform.position = start;
 		Cursor.lockState = CursorLockMode.Locked;
@@ -48,10 +52,13 @@ public class Player : MonoBehaviour {
 		atom = GetComponent<Atom>();
 		if (Level.currentLevel == 1 || Level.currentLevel == 6) {
 			atom.setElement (Element.NITROGEN);
+			goal += "N";
 		} else if (Level.currentLevel == 2 || Level.currentLevel == 4 || Level.currentLevel == 5) {
 			atom.setElement (Element.CARBON);
+			goal += "C";
 		} else if (Level.currentLevel == 3) {
 			atom.setElement (Element.HYDROGEN);
+			goal += "H";
 		}
 		
 		start = transform.position;
@@ -166,6 +173,28 @@ public class Player : MonoBehaviour {
             bonds[i].disable();
             playerWeight -= ab.atom.weight;
 
+			Atom atomScript = ab.GetComponent<Atom>();
+			Element e1 = atomScript.element;
+			int counter;
+			switch(e1)
+			{
+
+			case Element.CARBON: counter = goal.IndexOf("C");
+				goal = goal.Remove(i);
+				break;
+			case Element.HYDROGEN: counter = goal.IndexOf("H");
+				goal = goal.Remove(i);
+				break;
+			case Element.NITROGEN: counter = goal.IndexOf("N");
+				goal = goal.Remove(i);
+				break;
+			case Element.OXYGEN: counter = goal.IndexOf("O");
+				goal = goal.Remove(i);
+				break;
+			default: break;
+			}
+
+
         }
     }
 
@@ -192,6 +221,21 @@ public class Player : MonoBehaviour {
 
             bonds[index].enable(atom.element, ab.atom.element);
             playerWeight += ab.atom.weight;						// add weight
+			Atom atomScript = other.GetComponent<Atom>();
+			Element e1 = atomScript.element;
+
+			switch(e1)
+			{
+			case Element.CARBON: goal += "C";
+				break;
+			case Element.HYDROGEN: goal += "H";
+				break;
+			case Element.NITROGEN: goal += "N";
+				break;
+			case Element.OXYGEN: goal += "O";
+				break;
+			default: break;
+			}
 
         }
     }
@@ -243,13 +287,54 @@ public class Player : MonoBehaviour {
     private bool checkElement()
     {
         targetElement = Level.levelStr[Level.currentLevel-1];
+		//Debug.Log (goal);
+
+		switch (Level.currentLevel) {
+
+		case 1: if(goal.Equals("NHHH") && atom.currentBonds == 3)
+					return true;
+			else
+			break;
+		case 2: if(goal.Equals("C") && atom.currentBonds == 0)
+					return true;
+			else
+			break;
+		case 3: if(goal.Equals("HH") && atom.currentBonds == 1)
+					return true;
+			else
+			break;
+		case 4: if(goal.Equals("COO") && atom.currentBonds == 4)
+					return true;
+			else
+			break;
+		case 5: //Debug.Log (goal); 
+			if((goal.Equals("CHN") || goal.Equals("CNH")) && atom.currentBonds == 4)
+					return true;
+			else
+			break;
+		case 6: if(goal.Equals("NOOO") && atom.currentBonds == 3)
+					return true;
+			else
+			break;
+		default : return false;
+		}
+		return false;
+/*		if (Level.currentLevel == 5) {
 
 
-        if (targetElement.Length != (atom.currentBonds + 1))
+
+		}
+
+		if (Level.currentLevel == 2) {
+			
+
+			
+		}
+
+        if (targetElement.Length != (atom.currentBonds + 1))// && Level.currentLevel != 5)
         {
             return false;
         }
-
 
         foreach (char c in targetElement)
         {
@@ -283,7 +368,7 @@ public class Player : MonoBehaviour {
             }
         }
 
-        return true;
+        return true;*/
 
     }
 }
