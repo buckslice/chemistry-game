@@ -235,4 +235,9 @@ public class Player : MonoBehaviour {
                 break;
         }
     }
+
+    private void checkElement()
+    {
+
+    }
 }
