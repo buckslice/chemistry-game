@@ -23,7 +23,7 @@ public class Player : MonoBehaviour {
     public float bondLength = 1.25f;
     public Atom atom { get; private set; }
 
-    public static string elemStr;
+    private TargetMoleculeIndicator tmi;
 
     // Use this for initialization
     void Awake() {
@@ -46,6 +46,7 @@ public class Player : MonoBehaviour {
             go.transform.localScale = new Vector3(ls.x, bondLength, ls.z);
             bonds[i] = go.GetComponent<Bond>();
         }
+        tmi = GameObject.Find("Target").GetComponent<TargetMoleculeIndicator>();
     }
 
     public void ResetPlayer() {
@@ -69,7 +70,7 @@ public class Player : MonoBehaviour {
             bondedAtoms[i] = null;
             bonds[i].disable();
         }
-
+        tmi.setup();
     }
 
     void FixedUpdate() {
@@ -220,7 +221,7 @@ public class Player : MonoBehaviour {
         }
     }
 
-    private Vector3 getLocalBondDir(int i) {
+    public static Vector3 getLocalBondDir(int i) {
         switch (i) {
             case 0:
                 return Vector3.forward;
