@@ -19,7 +19,7 @@ public class Exit : MonoBehaviour {
         if (coll.gameObject.tag == "Player")
         {
             playStr = Player.elemStr;
-            if (checkBond(playStr, corStr))
+            if (Player.corElem)
             {
                 //light turns green
                 //goto next level
@@ -34,22 +34,6 @@ public class Exit : MonoBehaviour {
         }
     }
 
-    //would get a molecule string from the player script and compare it too the string for that level.
-    static bool checkBond(string s1, string s2)
-    {
-        Debug.Log(s1);
-        Debug.Log(s2);
-        char[] a  = s1.ToCharArray();
-        char[] a2 = s2.ToCharArray();
-
-        Array.Sort(a);
-        Array.Sort(a2);
-
-        s1 = new string(a);
-        s2 = new string(a2);
-
-        return s1.Equals(s2);
-    }
 
    
 

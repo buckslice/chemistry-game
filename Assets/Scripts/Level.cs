@@ -39,7 +39,7 @@ public class Level : MonoBehaviour {
     public const int SPLITTER_WEAK = 6;
     public const int SPLITTER_STRONG = 7;
     public const int BONDER = 8;
-    public const int EXIT = 13;
+    public const int EXIT = 13; //Sean
 
     public const int HYDROGEN = 9;
     public const int CARBON = 10;
@@ -48,11 +48,17 @@ public class Level : MonoBehaviour {
 
     public static Player player;
 
+    public static string[] levelStr; //sean
+    public static int curLvl = 0;
+
     // Use this for initialization
     void Awake() {
+        levelStr = new string[10]; //change the size for the number of levels here
+        levelStr[0] = "CH"; //add the wining codes here
         player = GameObject.Find("Player").GetComponent<Player>();
         Textures.load();
         LoadLevel();
+        
     }
 
     void Update() {

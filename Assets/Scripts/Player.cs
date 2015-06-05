@@ -15,6 +15,8 @@ public class Player : MonoBehaviour {
     private float lcamDistance;
     private bool updateCamera = false;
     public int playerWeight = 0;
+    private string targetElement; //Sean
+    public static bool corElem = false;
 
     private Rigidbody rb;
     public Object bond;
@@ -34,7 +36,6 @@ public class Player : MonoBehaviour {
         rb.freezeRotation = true;
         atom = GetComponent<Atom>();
         atom.setElement(Element.CARBON);
-        initAtom(atom); // sean
         atom.maxSpeed += 2f; // makes player slightly faster than other atoms
         gameObject.name = "Player";
         playerWeight += atom.weight;
@@ -68,7 +69,9 @@ public class Player : MonoBehaviour {
 
     void Update() {
         // for each of your bonds lerp them towards their correct positions
+        corElem = checkElement(); //Sean
         atom.currentBonds = 0;
+        
         for (int i = 0; i < bondPositions.Length; i++) {
             if (bondPositions[i]) {
                 if (!bonds[i].gameObject.activeInHierarchy) {
@@ -215,27 +218,52 @@ public class Player : MonoBehaviour {
         return Vector3.up;
     }
 
-    //Sean - used to set the player element in the string
-    private void initAtom(Atom tAtom) {
-        Element temp = tAtom.element;
-        switch (temp) {
-            case Element.CARBON:
-                elemStr += "C";
-                break;
-            case Element.HYDROGEN:
-                elemStr += "H";
-                break;
-            case Element.NITROGEN:
-                elemStr += "N";
-                break;
-            case Element.OXYGEN:
-                elemStr += "O";
-                break;
-        }
-    }
+   
 
-    private void checkElement()
+    private bool checkElement()
     {
+        targetElement = Level.levelStr[Level.curLvl];
+        
 
+        if (targetElement.Length != (atom.currentBonds + 1))
+        {
+            return false;
+        }
+                    
+
+        foreach(char c in targetElement)
+        {
+            
+            switch (c)
+            {
+                case 'C':
+                    if (this.transform.FindChild("CARBON") == null && Atom.str != "CARBON")
+                    {
+                        return false;
+                    }
+                    break;
+                case 'N':
+                    if (this.transform.FindChild("NITROGEN") == null && Atom.str != "NITROGEN")
+                    {
+                        return false;
+                    }
+                    break;
+                case 'H':
+                    if (this.transform.FindChild("HYDROGEN") == null && Atom.str != "HYDROGEN")
+                    {
+                        return false;
+                    }
+                    break;
+                case 'O':
+                    if (this.transform.FindChild("OXYGEN") == null && Atom.str != "OXYGEN")
+                    {
+                        return false;
+                    }
+                    break;
+            }
+        }
+
+        return true;
+        
     }
 }
