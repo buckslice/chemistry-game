@@ -21,7 +21,7 @@ public class Player : MonoBehaviour {
     private Transform[] bondPositions;
     private Bond[] bonds;
     public float bondLength = 1.25f;
-    public static Atom atom;					// made it static so that it can be accessed in WeightDoor scripts.
+    public Atom atom { get; private set; }
 
     public static string elemStr;
 
@@ -68,6 +68,7 @@ public class Player : MonoBehaviour {
 
     void Update() {
         // for each of your bonds lerp them towards their correct positions
+        atom.currentBonds = 0;
         for (int i = 0; i < bondPositions.Length; i++) {
             if (bondPositions[i]) {
                 if (!bonds[i].gameObject.activeInHierarchy) {
@@ -77,6 +78,7 @@ public class Player : MonoBehaviour {
                     Vector3 toPos = getLocalBondDir(i) * bondLength;
                     bondPositions[i].localPosition = Vector3.Lerp(fromPos, toPos, Time.deltaTime * 5f);
                     bonds[i].transform.localEulerAngles = new Vector3(90f, i * 90f, 0f);
+                    atom.currentBonds += bonds[i].numberBonds;
                 }
             }
         }
@@ -137,7 +139,6 @@ public class Player : MonoBehaviour {
             }
             bondPositions[i] = null;
             bonds[i].disable();
-            atom.currentBonds--;
             playerWeight -= ab.atom.weight;
 
         }
@@ -165,7 +166,6 @@ public class Player : MonoBehaviour {
             bondPositions[index] = other;
 
             bonds[index].enable(atom.element, ab.atom.element);
-            atom.currentBonds++;
             playerWeight += ab.atom.weight;						// add weight
 
         }
@@ -215,12 +215,10 @@ public class Player : MonoBehaviour {
         return Vector3.up;
     }
 
-     //Sean - used to set the player element in the string
-    private void initAtom(Atom tAtom)
-    {
+    //Sean - used to set the player element in the string
+    private void initAtom(Atom tAtom) {
         Element temp = tAtom.element;
-        switch (temp)
-        {
+        switch (temp) {
             case Element.CARBON:
                 elemStr += "C";
                 break;
