@@ -16,6 +16,8 @@ public class Player : MonoBehaviour {
     private bool updateCamera = false;
     public int playerWeight = 0;
 
+    public static string elementStr = ""; //Sean
+
     private Rigidbody rb;
     public Object bond;
     private Transform[] bondPositions;
@@ -33,6 +35,7 @@ public class Player : MonoBehaviour {
         rb.freezeRotation = true;
         atom = GetComponent<Atom>();
         atom.setElement(Element.CARBON);
+        initAtom(atom); // sean
         atom.maxSpeed += 2f; // makes player slightly faster than other atoms
         gameObject.name = "Player";
         playerWeight += atom.weight;
@@ -155,9 +158,11 @@ public class Player : MonoBehaviour {
             int strength = bondStrengths[i];
             switch (e1) {
                 case Element.HYDROGEN:
+                    elementStr += "H"; //Sean
                     atom.currentBonds--;
                     break;
                 case Element.CARBON:
+                    elementStr += "C"; //Sean
                     switch (strength) {
                         case 413:
                             atom.currentBonds--;
@@ -175,6 +180,7 @@ public class Player : MonoBehaviour {
                     }
                     break;
                 case Element.NITROGEN:
+                    elementStr += "N"; //Sean
                     switch (strength) {
                         case 391:
                             atom.currentBonds--;
@@ -192,6 +198,7 @@ public class Player : MonoBehaviour {
                     }
                     break;
                 case Element.OXYGEN:
+                    elementStr += "O"; //Sean
                     switch (strength) {
                         case 467:
                             atom.currentBonds--;
@@ -257,6 +264,7 @@ public class Player : MonoBehaviour {
                 case Element.HYDROGEN:
                     switch (e2) {
                         case Element.HYDROGEN:
+                            elementStr += "H";
                             bondStrengths[index] = 432;
                             break;
                         case Element.CARBON:
@@ -380,5 +388,30 @@ public class Player : MonoBehaviour {
                 return Vector3.left;
         }
         return Vector3.up;
+    }
+
+    //Sean - used to set the player element in the string
+    private void initAtom(Atom tAtom)
+    {
+        Element temp = tAtom.element;
+        switch (temp)
+        {
+            case Element.CARBON: 
+                elementStr += "C";
+                break;
+            case Element.HYDROGEN:
+                elementStr += "H";
+                break;
+            case Element.NITROGEN:
+                elementStr += "N";
+                break;
+            case Element.OXYGEN:
+                elementStr += "O";
+                break;
+        }
+
+        
+
+            
     }
 }

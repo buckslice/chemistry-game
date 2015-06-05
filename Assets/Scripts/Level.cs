@@ -10,6 +10,7 @@ public class Level : MonoBehaviour {
     public Object exploderPrefab;
     public Object weightDoorPrefab;
     public Object atomPrefab;
+    public Object exitprefab;
 
     public static int atoms = 0;
     public int maxAtoms = 100;
@@ -36,6 +37,7 @@ public class Level : MonoBehaviour {
 	public const int WEIGHT_DOOR_MORE = 5;
     public const int SPLITTER_WEAK = 6;
 	public const int SPLITTER_STRONG = 7;
+    public const int EXIT = 12;
     
     public const int HYDROGEN = 8;
     public const int CARBON = 9;
@@ -182,6 +184,11 @@ public class Level : MonoBehaviour {
 						break;
 					case EXPLODER:
 						go = (GameObject)Instantiate(exploderPrefab, spawn, Quaternion.identity);
+                        go.transform.parent = transform;
+                        tiles[x][y] = GROUND;
+                        break;
+                    case EXIT:
+                        go = (GameObject)Instantiate(exitprefab, spawn, Quaternion.identity);
                         go.transform.parent = transform;
                         tiles[x][y] = GROUND;
                         break;
