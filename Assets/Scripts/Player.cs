@@ -5,8 +5,7 @@ public class Player : MonoBehaviour {
     // player public variables
     public float mouseSensitivity = .1f;
     public float accel = 15f;
-    public float maxSpeed = 8f;
-	// camera variables
+    // camera variables
     private Transform cam;
     private float yaw = 0f;
     private float pitch = 0f;
@@ -15,12 +14,12 @@ public class Player : MonoBehaviour {
     private float lpitch = 0f;
     private float lcamDistance;
     private bool updateCamera = false;
-	public int playerWeight = 0;
+    public int playerWeight = 0;
 
     private Rigidbody rb;
     public Object bond;
     private Transform[] bondPositions;
-	public int[] bondStrengths;
+    public int[] bondStrengths;
     private GameObject[] bonds;
     public float bondLength = 1.25f;
     public static Atom atom;					// made it static so that it can be accessed in WeightDoor scripts.
@@ -34,12 +33,13 @@ public class Player : MonoBehaviour {
         rb.freezeRotation = true;
         atom = GetComponent<Atom>();
         atom.setElement(Element.CARBON);
+        atom.maxSpeed += 2f; // makes player slightly faster than other atoms
         gameObject.name = "Player";
-		playerWeight += atom.weight;
-		//initialWeight = playerWeight;
+        playerWeight += atom.weight;
+        //initialWeight = playerWeight;
 
         bondPositions = new Transform[4];
-		bondStrengths = new int[4];
+        bondStrengths = new int[4];
 
         bonds = new GameObject[4];
 
@@ -53,8 +53,8 @@ public class Player : MonoBehaviour {
             go.SetActive(false);
 
             bonds[i] = go;
-			bonds[i].tag = "Bond"+i;
-			bondStrengths[i] = 0;
+            bonds[i].tag = "Bond" + i;
+            bondStrengths[i] = 0;
         }
     }
 
@@ -64,27 +64,9 @@ public class Player : MonoBehaviour {
         float y = Input.GetAxisRaw("Vertical");
         rb.AddForce((transform.forward * y + transform.right * x) * accel);
 
-		Element e1 = atom.element;
-		switch (e1)
-		{
-		case Element.HYDROGEN:
-			maxSpeed = 8f;
-			break;
-		case Element.CARBON:
-			maxSpeed = 5f;
-			break;
-		case Element.NITROGEN:
-			maxSpeed = 6f;
-			break;
-		case Element.OXYGEN:
-			maxSpeed = 4f;
-			break;
-		default: break;
-		}
-
         // clamp velocity to maxspeed
-        if (rb.velocity.sqrMagnitude > (maxSpeed * maxSpeed)) {
-			rb.velocity = rb.velocity.normalized * maxSpeed;
+        if (rb.velocity.sqrMagnitude > atom.maxSpeed * atom.maxSpeed) {
+            rb.velocity = rb.velocity.normalized * atom.maxSpeed;
         }
         updateCamera = true;
     }
@@ -151,13 +133,12 @@ public class Player : MonoBehaviour {
         }
     }
 
-	public int getStrength(int i)
-	{
-		return bondStrengths [i];
-	}
+    public int getStrength(int i) {
+        return bondStrengths[i];
+    }
 
     private void DetachAtom(int i, bool stopUpdate = false) {
-		if (bondPositions[i]) {
+        if (bondPositions[i]) {
             bondPositions[i].transform.parent = null;
             AtomBehavior ab = bondPositions[i].GetComponent<AtomBehavior>();
             ab.AddRigidBody();
@@ -165,80 +146,77 @@ public class Player : MonoBehaviour {
                 ab.stopUpdate = Time.time + 2f;
             }
             bondPositions[i] = null;
-			bonds[i].SetActive(false);
+            bonds[i].SetActive(false);
 
-			//Atom atomScript = other.GetComponent<Atom>();			
-			//Element e2;
-			//e2 = atomScript.element;
-			Element e1 = atom.element;
-			int strength = bondStrengths[i];
-			switch (e1) {
-			case Element.HYDROGEN:
-				atom.currentBonds--;
-				break;
-			case Element.CARBON:
-				switch (strength)
-				{
-				case 413:
-					atom.currentBonds--;
-					break;
-				case 347:
-					atom.currentBonds--;
-					break;
-				case 891:
-					atom.currentBonds -= 3;
-					break;
-				case 745:
-					atom.currentBonds -= 2;
-					break;
-				default: break;
-				}
-				break;
-			case Element.NITROGEN:
-				switch (strength)
-				{
-				case 391:
-					atom.currentBonds--;
-					break;
-				case 891:
-					atom.currentBonds -= 3;
-					break;
-				case 945:
-					atom.currentBonds -= 3;
-					break;
-				case 201:
-					atom.currentBonds --;
-					break;
-				default: break;
-				}
-				break;
-			case Element.OXYGEN:
-				switch (strength)
-				{
-				case 467:
-					atom.currentBonds--;
-					break;
-				case 745:
-					atom.currentBonds -= 2;
-					break;
-				case 201:
-					atom.currentBonds--;
-					break;
-				case 498:
-					atom.currentBonds -= 2;
-					break;
-				default: break;
-				}
-				break;
-			default: break;
-			}
-			
+            //Atom atomScript = other.GetComponent<Atom>();			
+            //Element e2;
+            //e2 = atomScript.element;
+            Element e1 = atom.element;
+            int strength = bondStrengths[i];
+            switch (e1) {
+                case Element.HYDROGEN:
+                    atom.currentBonds--;
+                    break;
+                case Element.CARBON:
+                    switch (strength) {
+                        case 413:
+                            atom.currentBonds--;
+                            break;
+                        case 347:
+                            atom.currentBonds--;
+                            break;
+                        case 891:
+                            atom.currentBonds -= 3;
+                            break;
+                        case 745:
+                            atom.currentBonds -= 2;
+                            break;
+                        default: break;
+                    }
+                    break;
+                case Element.NITROGEN:
+                    switch (strength) {
+                        case 391:
+                            atom.currentBonds--;
+                            break;
+                        case 891:
+                            atom.currentBonds -= 3;
+                            break;
+                        case 945:
+                            atom.currentBonds -= 3;
+                            break;
+                        case 201:
+                            atom.currentBonds--;
+                            break;
+                        default: break;
+                    }
+                    break;
+                case Element.OXYGEN:
+                    switch (strength) {
+                        case 467:
+                            atom.currentBonds--;
+                            break;
+                        case 745:
+                            atom.currentBonds -= 2;
+                            break;
+                        case 201:
+                            atom.currentBonds--;
+                            break;
+                        case 498:
+                            atom.currentBonds -= 2;
+                            break;
+                        default: break;
+                    }
+                    break;
+                default: break;
+            }
+
 
 
             //atom.currentBonds--;
 
-			Atom atomScript = ab.GetComponent<Atom>();			// reduce weight
-			playerWeight -= atomScript.weight;
+            Atom atomScript = ab.GetComponent<Atom>();			// reduce weight
+            playerWeight -= atomScript.weight;
 
         }
     }
@@ -268,107 +246,103 @@ public class Player : MonoBehaviour {
             other.parent = transform;
             bondPositions[index] = other;
 
-			Atom atomScript = other.GetComponent<Atom>();			
-			Element e2;
-			e2 = atomScript.element;
-			Element e1 = atom.element;
+            Atom atomScript = other.GetComponent<Atom>();
+            Element e2;
+            e2 = atomScript.element;
+            Element e1 = atom.element;
 
-			// Bond energies for different bonds - thought of having 2 splitters; one for strong and one for weak bonds.
+            // Bond energies for different bonds - thought of having 2 splitters; one for strong and one for weak bonds.
 
-			switch (e1) {
-			case Element.HYDROGEN:
-				switch (e2)
-				{
-				case Element.HYDROGEN:
-					bondStrengths[index] = 432;
-					break;
-				case Element.CARBON:
-					bondStrengths[index] = 413;
-					break;
-				case Element.NITROGEN:
-					bondStrengths[index] = 391;
-					break;
-				case Element.OXYGEN:
-					bondStrengths[index] = 467;
-					break;
-				default: break;
-				}
-				atom.currentBonds++;
-				break;
-			case Element.CARBON:
-				switch (e2)
-				{
-				case Element.HYDROGEN:
-					bondStrengths[index] = 413;
-					atom.currentBonds++;
-					break;
-				case Element.CARBON:
-					bondStrengths[index] = 347;	// single bond only
-					atom.currentBonds++;
-					break;
-				case Element.NITROGEN:
-					bondStrengths[index] = 891; // triple bond (for cyanide)
-					atom.currentBonds += 3;
-					break;
-				case Element.OXYGEN:
-					bondStrengths[index] = 745; // single bond is 358
-					atom.currentBonds += 2;
-					break;
-				default: break;
-				}
-				break;
-			case Element.NITROGEN:
-				switch (e2)
-				{
-				case Element.HYDROGEN:
-					bondStrengths[index] = 391;
-					atom.currentBonds++;
-					break;
-				case Element.CARBON:
-					bondStrengths[index] = 891; // triple bond (for cyanide)
-					atom.currentBonds += 3;
-					break;
-				case Element.NITROGEN:
-					bondStrengths[index] = 945; // single bond is 160
-					atom.currentBonds += 3;
-					break;
-				case Element.OXYGEN:
-					bondStrengths[index] = 201;
-					atom.currentBonds++;
-					break;
-				default: break;
-				}
-				break;
-			case Element.OXYGEN:
-				switch (e2)
-				{
-				case Element.HYDROGEN:
-					bondStrengths[index] = 467;
-					atom.currentBonds++;
-					break;
-				case Element.CARBON:
-					bondStrengths[index] = 745; // single bond is 358
-					atom.currentBonds += 2;
-					break;
-				case Element.NITROGEN:
-					bondStrengths[index] = 201;
-					atom.currentBonds++;
-					break;
-				case Element.OXYGEN:
-					bondStrengths[index] = 498; // single bond is 204
-					atom.currentBonds += 2;
-					break;
-				default: break;
-				}
-				break;
-			default: break;
-			}
+            switch (e1) {
+                case Element.HYDROGEN:
+                    switch (e2) {
+                        case Element.HYDROGEN:
+                            bondStrengths[index] = 432;
+                            break;
+                        case Element.CARBON:
+                            bondStrengths[index] = 413;
+                            break;
+                        case Element.NITROGEN:
+                            bondStrengths[index] = 391;
+                            break;
+                        case Element.OXYGEN:
+                            bondStrengths[index] = 467;
+                            break;
+                        default: break;
+                    }
+                    atom.currentBonds++;
+                    break;
+                case Element.CARBON:
+                    switch (e2) {
+                        case Element.HYDROGEN:
+                            bondStrengths[index] = 413;
+                            atom.currentBonds++;
+                            break;
+                        case Element.CARBON:
+                            bondStrengths[index] = 347;	// single bond only
+                            atom.currentBonds++;
+                            break;
+                        case Element.NITROGEN:
+                            bondStrengths[index] = 891; // triple bond (for cyanide)
+                            atom.currentBonds += 3;
+                            break;
+                        case Element.OXYGEN:
+                            bondStrengths[index] = 745; // single bond is 358
+                            atom.currentBonds += 2;
+                            break;
+                        default: break;
+                    }
+                    break;
+                case Element.NITROGEN:
+                    switch (e2) {
+                        case Element.HYDROGEN:
+                            bondStrengths[index] = 391;
+                            atom.currentBonds++;
+                            break;
+                        case Element.CARBON:
+                            bondStrengths[index] = 891; // triple bond (for cyanide)
+                            atom.currentBonds += 3;
+                            break;
+                        case Element.NITROGEN:
+                            bondStrengths[index] = 945; // single bond is 160
+                            atom.currentBonds += 3;
+                            break;
+                        case Element.OXYGEN:
+                            bondStrengths[index] = 201;
+                            atom.currentBonds++;
+                            break;
+                        default: break;
+                    }
+                    break;
+                case Element.OXYGEN:
+                    switch (e2) {
+                        case Element.HYDROGEN:
+                            bondStrengths[index] = 467;
+                            atom.currentBonds++;
+                            break;
+                        case Element.CARBON:
+                            bondStrengths[index] = 745; // single bond is 358
+                            atom.currentBonds += 2;
+                            break;
+                        case Element.NITROGEN:
+                            bondStrengths[index] = 201;
+                            atom.currentBonds++;
+                            break;
+                        case Element.OXYGEN:
+                            bondStrengths[index] = 498; // single bond is 204
+                            atom.currentBonds += 2;
+                            break;
+                        default: break;
+                    }
+                    break;
+                default: break;
+            }
 
 
             bonds[index].SetActive(true);
             //atom.currentBonds++;
 
-			playerWeight += atomScript.weight;						// add weight
+            playerWeight += atomScript.weight;						// add weight
 
         }
     }
