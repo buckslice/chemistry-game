@@ -53,18 +53,18 @@ public class Level : MonoBehaviour {
         new int[]{1,1,1,0},
         new int[]{0,0,0,0},
         new int[]{1,0,0,0},
-        new int[]{4,4,0,0},
-        new int[]{3,1,0,0},
-        new int[]{4,4,4,0},
+        new int[]{4,0,4,0},
+        new int[]{0,1,0,3},
+        new int[]{0,4,4,4},
     };
 
     public static int[][] bondNumbers = new int[][]{
         new int[]{1,1,1,0},
         new int[]{0,0,0,0},
         new int[]{1,0,0,0},
-        new int[]{2,2,0,0},
-        new int[]{3,1,0,0},
-        new int[]{1,1,2,0},
+        new int[]{2,0,2,0},
+        new int[]{0,1,0,3},
+        new int[]{0,1,1,1},
     };
 
     // Use this for initialization
