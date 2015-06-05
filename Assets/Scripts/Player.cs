@@ -16,7 +16,8 @@ public class Player : MonoBehaviour {
     private bool updateCamera = false;
     public int playerWeight = 0;
     private string targetElement; //Sean
-    public static bool corElem = false; //Sean
+	public static bool corElem; //Sean
+	public Vector3 start;
 
     private Rigidbody rb;
     public Object bond;
@@ -26,33 +27,55 @@ public class Player : MonoBehaviour {
     public Atom atom { get; private set; }
 
     public static string elemStr;
-
+	
     // Use this for initialization
     void Start() {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-        cam = Camera.main.transform;
-        rb = GetComponent<Rigidbody>();
-        rb.freezeRotation = true;
-        atom = GetComponent<Atom>();
-		atom.setElement (Element.NITROGEN);
-        atom.maxSpeed += 2f; // makes player slightly faster than other atoms
-        gameObject.name = "Player";
-        playerWeight += atom.weight;
 
-        bondPositions = new Transform[4];
-        bonds = new Bond[4];
-
-        for (int i = 0; i < bonds.Length; i++) {
-            GameObject go = (GameObject)Instantiate(bond);
-            go.transform.parent = transform;
-            go.transform.localPosition = Vector3.zero;
-
-            Vector3 ls = go.transform.localScale;
-            go.transform.localScale = new Vector3(ls.x, bondLength, ls.z);
-            bonds[i] = go.GetComponent<Bond>();
-        }
+		ResetPlayer ();
+        
     }
+
+	public void ResetPlayer() {
+
+		playerWeight = 0;
+		corElem = false;
+		//transform.position = start;
+		Cursor.lockState = CursorLockMode.Locked;
+		Cursor.visible = false;
+		cam = Camera.main.transform;
+		rb = GetComponent<Rigidbody>();
+		rb.freezeRotation = true;
+		atom = GetComponent<Atom>();
+		if (Level.currentLevel == 1 || Level.currentLevel == 6) {
+			atom.setElement (Element.NITROGEN);
+		} else if (Level.currentLevel == 2 || Level.currentLevel == 4 || Level.currentLevel == 5) {
+			atom.setElement (Element.CARBON);
+		} else if (Level.currentLevel == 3) {
+			atom.setElement (Element.HYDROGEN);
+		}
+		
+		start = transform.position;
+		
+		atom.maxSpeed += 1f; // makes player slightly faster than other atoms
+		gameObject.name = "Player";
+		playerWeight += atom.weight;
+		
+		bondPositions = new Transform[4];
+		bonds = new Bond[4];
+		
+		for (int i = 0; i < bonds.Length; i++) {
+			GameObject go = (GameObject)Instantiate(bond);
+			go.transform.parent = transform;
+			go.transform.localPosition = Vector3.zero;
+			
+			Vector3 ls = go.transform.localScale;
+			go.transform.localScale = new Vector3(ls.x, bondLength, ls.z);
+			bonds[i] = go.GetComponent<Bond>();
+		}
+		//this.DetachConnectedAtoms ();
+
+		
+	}
 
     void FixedUpdate() {
         // apply player movement
@@ -125,7 +148,7 @@ public class Player : MonoBehaviour {
         transform.rotation = Quaternion.LookRotation(forward);
     }
 
-    private void DetachConnectedAtoms() {
+    public void DetachConnectedAtoms() {
         for (int i = 0; i < bondPositions.Length; i++) {
             DetachAtom(i);
         }
@@ -219,7 +242,7 @@ public class Player : MonoBehaviour {
 
     private bool checkElement()
     {
-        targetElement = Level.levelStr[Level.curLvl];
+        targetElement = Level.levelStr[Level.currentLevel-1];
 
 
         if (targetElement.Length != (atom.currentBonds + 1))

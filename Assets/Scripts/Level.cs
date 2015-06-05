@@ -18,7 +18,7 @@ public class Level : MonoBehaviour {
     public float spawnInterval = .5f;
 
     private float spawnTime = 0f;
-    private int currentLevel = 1;
+    public static int currentLevel = 1;
     private Mesh mesh;  // current level mesh
 
     private int[][] tiles;
@@ -54,12 +54,26 @@ public class Level : MonoBehaviour {
     // Use this for initialization
     void Awake() {
         levelStr = new string[10]; //change the size for the number of levels here
-        levelStr[0] = "CH"; //add the wining codes here
+        levelStr[0] = "NHHH"; //add the wining codes here
+		levelStr[1] = "C"; //add the wining codes here
+		levelStr[2] = "HH"; //add the wining codes here
+		levelStr[3] = "COO"; //add the wining codes here
+		levelStr[4] = "CNH"; //add the wining codes here
+		levelStr[5] = "NOOO"; //add the wining codes here
+
         player = GameObject.Find("Player").GetComponent<Player>();
+
         Textures.load();
         LoadLevel();
         
     }
+
+	public void LoadNextLevel() {
+
+		Level.currentLevel++;
+		LoadLevel();
+
+	}
 
     void Update() {
         if (atoms < maxAtoms && (Input.GetKeyDown(KeyCode.R))) { //|| spawnTime < Time.time)) {
@@ -177,6 +191,7 @@ public class Level : MonoBehaviour {
                 switch (tiles[x][y]) {
                     case PLAYER_SPAWN:
                         player.transform.position = spawn + Vector3.up;
+						player.ResetPlayer();
                         break;
                     case SPLITTER_WEAK:
                         GameObject go = (GameObject)Instantiate(splitterPrefab, spawn, Quaternion.identity);
