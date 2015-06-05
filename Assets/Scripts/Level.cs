@@ -56,7 +56,7 @@ public class Level : MonoBehaviour {
     }
 
     void Update() {
-        if (atoms < maxAtoms && (Input.GetKeyDown(KeyCode.R) || spawnTime < Time.time)) {
+        if (atoms < maxAtoms && (Input.GetKeyDown(KeyCode.R))) { //|| spawnTime < Time.time)) {
             Instantiate(atomPrefab, Pathfinder.instance.getRandomWalkable(), Quaternion.identity);
             spawnTime = Time.time + spawnInterval;
             atoms++;

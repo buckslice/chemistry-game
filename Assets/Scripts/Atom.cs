@@ -11,9 +11,9 @@ public enum Element {
 public class Atom : MonoBehaviour {
 
     public Element element { get; private set; }
-    public int maxBonds { get; private set; }
+    public int maxBonds;
     public int weight;
-    public int currentBonds { get; set; }
+    public int currentBonds;
     public float maxSpeed;
 
     private Color elementColor;
