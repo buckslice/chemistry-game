@@ -27,6 +27,7 @@ public class Exit : MonoBehaviour {
             if (Level.instance.player.checkElement()) {
                 //Application.OpenURL("http://www.google.com");
                 Level.instance.LoadNextLevel();
+                Level.instance.player.source.PlayOneShot(Level.instance.player.exitSound, .7f);
             } else {
                 cooldown = 3.5f;
             }

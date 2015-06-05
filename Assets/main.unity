@@ -1218,10 +1218,6 @@ Prefab:
       propertyPath: m_RootOrder
       value: 5
       objectReference: {fileID: 0}
-    - target: {fileID: 173892, guid: bbf0b7b748bce044b8451ea97b9ef9a0, type: 2}
-      propertyPath: m_TagString
-      value: Player
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: bbf0b7b748bce044b8451ea97b9ef9a0, type: 2}
   m_IsPrefabParent: 0

@@ -56,6 +56,7 @@ public class Bond : MonoBehaviour {
             strength = s;
         }
         cooldown = Time.time + .5f;
+        Level.instance.player.source.PlayOneShot(Level.instance.player.bondSound, .7f);
     }
 
     public void decrement() {
@@ -68,6 +69,7 @@ public class Bond : MonoBehaviour {
             strength = Atom.getBondStrength(--numberBonds, e1, e2);
         }
         cooldown = Time.time + .5f;
+        Level.instance.player.source.PlayOneShot(Level.instance.player.splitSound, .7f);
     }
 
     public void disable() {

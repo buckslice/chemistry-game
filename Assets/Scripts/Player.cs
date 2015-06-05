@@ -18,18 +18,25 @@ public class Player : MonoBehaviour {
 
     private Rigidbody rb;
     public Object bond;
-    public AtomBehavior[] bondedAtoms;
+    private AtomBehavior[] bondedAtoms;
     private Bond[] bonds;
     public float bondLength = 1.25f;
     public Atom atom { get; private set; }
 
     private TargetMoleculeIndicator tmi;
 
+    public AudioClip explodeSound;
+    public AudioClip bondSound;
+    public AudioClip splitSound;
+    public AudioClip exitSound;
+    public AudioSource source { get; set; }
+
     // Use this for initialization
     void Awake() {
         //transform.position = start;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        source = GetComponent<AudioSource>();
         cam = Camera.main.transform;
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
@@ -188,6 +195,7 @@ public class Player : MonoBehaviour {
             bonds[index].enable(atom.element, ab.atom.element);
             totalPlayerWeight += ab.atom.weight;						// add weight
 
+            source.PlayOneShot(bondSound, .7f);
         }
     }
 
@@ -210,6 +218,7 @@ public class Player : MonoBehaviour {
                 ab.stopUpdate = Time.time + 2f;
             }
         }
+        source.PlayOneShot(explodeSound, .7f);
     }
 
     public void sleepAtoms() {

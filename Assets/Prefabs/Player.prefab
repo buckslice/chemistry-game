@@ -31,6 +31,7 @@ GameObject:
   - 114: {fileID: 11462892}
   - 114: {fileID: 11499762}
   - 135: {fileID: 13569106}
+  - 82: {fileID: 8249474}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -57,7 +58,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 173892}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3, y: 0, z: 0}
+  m_LocalPosition: {x: 1.88, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 410446}
@@ -109,6 +110,75 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!82 &8249474
+AudioSource:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 173892}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    - time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
 --- !u!114 &11426236
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -133,9 +203,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mouseSensitivity: .100000001
   accel: 50
-  playerWeight: 0
+  totalPlayerWeight: 0
   bond: {fileID: 153560, guid: d822de91d79c0504fb07674b937ae909, type: 2}
   bondLength: 1.25
+  explodeSound: {fileID: 8300000, guid: 38bd327cfea8733458514b11746e9548, type: 3}
+  bondSound: {fileID: 8300000, guid: 95396bfba27ee3a4abaf505e0ac7d1ea, type: 3}
+  splitSound: {fileID: 8300000, guid: f9ebb3e923fbcd143847b4ae4a250a33, type: 3}
+  exitSound: {fileID: 8300000, guid: d228ff59c457c6a48a3647013258ce56, type: 3}
 --- !u!114 &11499762
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -147,9 +221,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 163cf8fdb2624f946934af5623209071, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentBonds: 0
   maxBonds: 0
   weight: 0
-  currentBonds: 0
   maxSpeed: 0
 --- !u!135 &13564856
 SphereCollider:
