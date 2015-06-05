@@ -23,6 +23,8 @@ public class Player : MonoBehaviour {
     public float bondLength = 1.25f;
     public static Atom atom;					// made it static so that it can be accessed in WeightDoor scripts.
 
+    public static string elemStr;
+
     // Use this for initialization
     void Start() {
         Cursor.lockState = CursorLockMode.Locked;
@@ -32,6 +34,7 @@ public class Player : MonoBehaviour {
         rb.freezeRotation = true;
         atom = GetComponent<Atom>();
         atom.setElement(Element.CARBON);
+        initAtom(atom); // sean
         atom.maxSpeed += 2f; // makes player slightly faster than other atoms
         gameObject.name = "Player";
         playerWeight += atom.weight;
@@ -210,5 +213,26 @@ public class Player : MonoBehaviour {
                 return Vector3.left;
         }
         return Vector3.up;
+    }
+
+     //Sean - used to set the player element in the string
+    private void initAtom(Atom tAtom)
+    {
+        Element temp = tAtom.element;
+        switch (temp)
+        {
+            case Element.CARBON:
+                elemStr += "C";
+                break;
+            case Element.HYDROGEN:
+                elemStr += "H";
+                break;
+            case Element.NITROGEN:
+                elemStr += "N";
+                break;
+            case Element.OXYGEN:
+                elemStr += "O";
+                break;
+        }
     }
 }

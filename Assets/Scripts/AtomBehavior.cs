@@ -14,7 +14,7 @@ public class AtomBehavior : MonoBehaviour {
 
     public bool followPlayer;
 
-    public bool followPlayer;
+
 
     // Use this for initialization
     void Awake() {

@@ -18,7 +18,7 @@ public class Exit : MonoBehaviour {
         
         if (coll.gameObject.tag == "Player")
         {
-            playStr = Player.elementStr;
+            playStr = Player.elemStr;
             if (checkBond(playStr, corStr))
             {
                 //light turns green
